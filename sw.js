@@ -1,5 +1,5 @@
 // Hero Battle service worker. Naikkan VERSION setiap kali Anda mengganti file game.
-const VERSION = 'v6';
+const VERSION = 'v9';
 const CACHE = 'hero-battle-' + VERSION;
 const SHELL = [
   './',
@@ -12,8 +12,17 @@ const SHELL = [
   './icons/favicon-32.png'
 ];
 
+// Audio disimpan sejak awal supaya musik dan efek suara langsung jalan saat offline.
+// Dicoba satu per satu: bila ada file yang tidak ada, instalasi tetap berhasil.
+const AUDIO = ['arrow','arrowhit','fire','explode','sword','slash','spear','ice','dark','poison','heal','shield','magic','hurt','kill','portal','coin','click','hit','cast','clear','slam','parry','limit','boss','title','battle']
+  .map(n => './audio/' + n + '.ogg');
+
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  e.waitUntil(
+    caches.open(CACHE)
+      .then(c => c.addAll(SHELL).then(() => Promise.allSettled(AUDIO.map(u => c.add(u)))))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', e => {
