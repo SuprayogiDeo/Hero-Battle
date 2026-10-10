@@ -1,5 +1,5 @@
 // Hero Battle service worker. Naikkan VERSION setiap kali Anda mengganti file game.
-const VERSION = 'v9';
+const VERSION = 'v17';
 const CACHE = 'hero-battle-' + VERSION;
 const SHELL = [
   './',
@@ -9,8 +9,30 @@ const SHELL = [
   './icons/icon-512.png',
   './icons/icon-maskable-512.png',
   './icons/apple-touch-icon.png',
-  './icons/favicon-32.png'
+  './icons/favicon-32.png',
+  // kode game (urutan pemuatan diatur di index.html)
+  './js/assets.js',
+  './js/audio.js',
+  './js/data.js',
+  './js/progress.js',
+  './js/autogear.js',
+  './js/modes.js',
+  './js/combat.js',
+  './js/hero-icons.js',
+  './js/ai.js',
+  './js/manual.js',
+  './js/i18n.js',
+  './js/settings.js',
+  './js/render.js',
+  './js/screens.js',
+  './js/input.js',
+  './js/pwa.js',
+  './js/boot.js'
 ];
+
+// Gambar sprite & tileset: wajib ada supaya game tampil, jadi ikut di-precache.
+const ART = ['tileset','kenney'].map(n => './assets/tiles/' + n + '.png')
+  .concat(["101", "102", "103", "104", "105", "106", "107", "108", "109", "110", "111", "113", "114", "115", "116", "117", "118", "119", "120", "121", "122", "125", "126", "127", "128", "129", "130", "131", "g1", "g2", "g3", "g4", "h0", "h1", "h10", "h11", "h12", "h13", "h14", "h15", "h16", "h17", "h18", "h19", "h2", "h20", "h21", "h22", "h23", "h24", "h25", "h3", "h4", "h5", "h6", "h7", "h8", "h9"].map(n => './assets/sprites/' + n + '.png'));
 
 // Audio disimpan sejak awal supaya musik dan efek suara langsung jalan saat offline.
 // Dicoba satu per satu: bila ada file yang tidak ada, instalasi tetap berhasil.
@@ -20,7 +42,7 @@ const AUDIO = ['arrow','arrowhit','fire','explode','sword','slash','spear','ice'
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE)
-      .then(c => c.addAll(SHELL).then(() => Promise.allSettled(AUDIO.map(u => c.add(u)))))
+      .then(c => c.addAll(SHELL.concat(ART).map(u => new Request(u, { cache: 'reload' }))).then(() => Promise.allSettled(AUDIO.map(u => c.add(u)))))
       .then(() => self.skipWaiting())
   );
 });
