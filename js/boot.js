@@ -1,3 +1,5 @@
 /* ===== BOOT: dijalankan terakhir, setelah semua fungsi tersedia ===== */
-dayRefresh();
-requestAnimationFrame(loop);
+/* dev.js (full unlock untuk uji) hanya dimuat bila ?dev=1, dan dijalankan SEBELUM game mulai (urutan sama seperti dulu).
+   Bila filenya tidak ada, game tetap jalan. Produksi tidak pernah meminta dev.js. */
+function bootStart(){dayRefresh();requestAnimationFrame(loop)}
+if(DEV){document.title+=' [DEV]';const s=document.createElement('script');s.src='js/dev.js';s.onload=s.onerror=bootStart;document.head.appendChild(s)}else bootStart();

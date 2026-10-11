@@ -1,5 +1,5 @@
 /* ===== KONTROL MANUAL: 1 hero pemimpin (analog, ATK, S1, S2, Limit Break). Hero lain AI / ketuk kartu ===== */
-let MAN=true,jx=0,jy=0,jid=null,aid=null,atkH=0;const KD={};try{MAN=localStorage.getItem('hb_man')!='0'}catch(e){}
+let MAN=true,jx=0,jy=0,jid=null,aid=null,atkH=0;const KD={};MAN=Save.readMan();
 let JR=36;const JC=[66,258],BT0={atk:27,s1:20,s2:20,ult:28},BT={atk:[590,264,27],s1:[528,286,20],s2:[538,228,20],ult:[596,198,28]};function applyCS(){const k=[.85,1,1.2][S.set.cs==null?1:S.set.cs];JR=36*k;for(const n in BT)BT[n][2]=BT0[n]*k}
 const ctlH=()=>{const a=hs.filter(h=>!h.dead);return a.find(h=>h.d.id==S.lead)||a[0]||null};
 function ctlMove(x,y){let dx=(x-JC[0])/JR,dy=(y-JC[1])/JR;const l=Math.hypot(dx,dy);if(l>1){dx/=l;dy/=l}jx=l<.15?0:dx;jy=l<.15?0:dy}

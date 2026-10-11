@@ -1,0 +1,61 @@
+# Hero Battle - desain desa (Tahap 5B). Dibaca oleh tools/build_village.py
+# Satuan = tile 16 px (peta 60x45). Ubah berkas ini lalu jalankan ulang build_village.py.
+# ---- terrain ----
+size 60 45
+island 5 5 50 32          # x y lebar tinggi (area rumput; tebing 4 baris di bawahnya)
+spawn 30 26
+# jalan (path 01) dan petak ladang (path 02): rect x0 y0 x1 y1 (inklusif)
+road 29 6 32 35           # jalan utama utara-selatan (lewat gerbang)
+road 7 22 52 24           # jalan silang timur-barat
+road 27 20 34 26          # plaza tengah
+road 18 20 20 21          # ke Toko
+road 43 20 45 21          # ke Barak
+road 12 20 13 21          # ke rumah ungu
+road 33 17 37 18          # ke Papan Misi
+road 13 25 14 27          # ke Ladang
+road 48 20 49 21          # ke rumah oranye
+plot 9 29 18 33           # petak ladang (tanah)
+# ---- bangunan: obj <sprite> <sel-kaki-x> <sel-kaki-y> [huruf] [baris-jejak] ----
+obj house_toko 19 19 S
+obj house_barak 44 19 R
+obj stall_red 36 16 Q 1
+obj tower 27 8 G 1
+obj tower 34 8 G 1
+obj house_purple 12 19 X
+obj house_orange 50 19 X
+obj house_green 11 12 X
+obj house_orange2 20 12 X
+obj house_redtall 44 12 X
+obj house_hut 51 12 X 1
+obj house_blue 23 31 X
+obj house_hut 34 31 X 1
+# ---- ladang: pagar keliling ----
+fence F 8 28 19 34
+# ---- padang hewan (pagar, celah 2 sel di atas) ----
+fence f 38 28 52 34 gap 45 46
+animals chicken 3 39 29 51 33
+animals cow 2 39 29 51 33
+animals sheep 3 39 29 51 33
+animals pig 2 39 29 51 33
+# ---- hiasan hidup ----
+windmill 7 19 0
+smoke smoke_1 house_toko -14 -66
+smoke smoke_3 house_barak 22 -76
+smoke smoke_2 house_orange 18 -52
+# ---- sebar: scatter <jenis> x0 y0 x1 y1 jumlah seed ----
+scatter tree1 6 6 26 11 14 1
+scatter tree2 36 6 53 10 14 2
+scatter pine 6 12 9 16 4 3
+scatter pine 54 24 54 34 0 4
+scatter tree1 6 25 8 28 2 5
+scatter tree2 21 29 27 35 5 6
+scatter tree1 38 25 53 27 6 7
+scatter bush 6 6 53 35 26 8
+scatter rock 6 6 53 35 9 9
+scatter flower 6 6 53 35 60 10
+scatter pine 22 25 28 28 3 11
+# ---- NPC (sel) ----
+npc guard 31 10
+npc merchant 22 23
+npc farmer 15 27
+npc elder 26 19

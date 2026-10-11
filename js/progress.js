@@ -45,7 +45,11 @@ const iVal=it=>{const m=1+.1*it.lv;return it.slot=='w'?WB[it.rar]*m:it.slot=='a'
 const iName=it=>RP[it.rar]+' '+it.nm,iDesc=it=>it.slot=='w'?'ATK +'+iVal(it).toFixed(0)+'%':it.slot=='a'?'HP +'+iVal(it).toFixed(0)+'%':XT[it.ty][0]+' +'+iVal(it).toFixed(0)+'%';
 const iUp=it=>Math.round(40*(it.lv+1)**1.5*(1+RAR.indexOf(it.rar)*.8)),iSell=it=>Math.round(SELL[it.rar]*(1+it.lv*.6));
 const equippedBy=u=>Object.keys(S.eq).find(h=>{const e=S.eq[h];return e&&(e.w==u||e.a==u||e.x==u)});
-let soldAuto={n:0,g:0},sumW='',sellDlg=null;
+let soldAuto={n:0,g:0},sumW='',sellDlg=null,fullDlg=null;
+/* Perkiraan item yang akan dijual otomatis bila k item baru masuk (urutan sama dengan addItem). null = aman. */
+function ovfPreview(k){const o=S.items.length+k-120;if(o<=0)return null;const c=S.items.filter(x=>!x.lk&&!equippedBy(x.u)).sort((a,b)=>RAR.indexOf(a.rar)-RAR.indexOf(b.rar)||a.lv-b.lv).slice(0,o);return c.length?{n:c.length,g:c.reduce((a,i)=>a+iSell(i),0)}:null}
+function fullClick(x,y){const d=fullDlg;if(!d||y<246||y>274)return;if(x>130&&x<250){fullDlg=null;sfx('click');pullE(d.n,1)}else if(x>260&&x<380){fullDlg=null;gslot='w';gsel=null;gpage=0;sellDlg={r:0};st='gear';sfx('click')}else if(x>390&&x<510){fullDlg=null;sfx('click')}}
+function drawFull(){const d=fullDlg;if(!d)return;ov(.78);card(110,66,420,222,'#f88',1);T('GUDANG AKAN PENUH',320,98,'#f88',16,'center');T('Gudang '+S.items.length+'/120',320,120,'#fc4',12,'center');wr('Membuka akan menambah item baru melebihi kapasitas gudang.',320,142,60,'#cde',10,'center');wr('Item terlemah yang tidak terkunci & tidak terpasang akan dijual otomatis:',320,172,60,'#cde',10,'center');T('~ '+d.pv.n+' item  =  +'+d.pv.g+' emas',320,214,'#f88',13,'center');T('Kunci item penting dulu agar aman dari jual otomatis.',320,234,'#9cf',10,'center');btn(130,246,120,28,'LANJUT BUKA',1);btn(260,246,120,28,'BUKA GUDANG',0);btn(390,246,120,28,'BATAL',0)}
 function addItem(it){if(S.items.length>=120){const w=S.items.filter(x=>!x.lk&&!equippedBy(x.u)).sort((a,b)=>RAR.indexOf(a.rar)-RAR.indexOf(b.rar)||a.lv-b.lv)[0];if(w){const v=iSell(w);S.g+=v;soldAuto.n++;soldAuto.g+=v;S.items.splice(S.items.indexOf(w),1)}}S.items.push(it)}
 const sellList=r=>S.items.filter(i=>!i.lk&&!equippedBy(i.u)&&RAR.indexOf(i.rar)<=r);
 function rollRar(w){let r=Math.random()*100,a=0;for(let i=0;i<4;i++){a+=w[i];if(r<a)return RAR[i]}return'N'}
