@@ -1,0 +1,9 @@
+Hero Battle - Credits
+
+Art: "Sunnyside World" asset pack by Daniel Diggle (https://danieldiggle.itch.io/sunnyside).
+Used under the pack's license: modification allowed; resale, repackaging and use for
+training AI are NOT allowed. Files derived from it live in assets/world/ (avatar.png,
+props.png, atlas.json) and are produced by tools/build_assets.py (cropped / recombined only).
+
+Tahap 5B: assets/world/tiles.png, sprites.png, sea.png dan village.json diturunkan dari tileset dan contoh scene (Room1) paket yang sama
+(dipotong/digabung saja) lewat tools/build_village.py.

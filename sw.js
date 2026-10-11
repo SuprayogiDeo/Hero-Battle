@@ -1,5 +1,5 @@
 // Hero Battle service worker. Naikkan VERSION setiap kali Anda mengganti file game.
-const VERSION = 'v17';
+const VERSION = 'v27';
 const CACHE = 'hero-battle-' + VERSION;
 const SHELL = [
   './',
@@ -13,6 +13,7 @@ const SHELL = [
   // kode game (urutan pemuatan diatur di index.html)
   './js/assets.js',
   './js/audio.js',
+  './js/save.js',
   './js/data.js',
   './js/progress.js',
   './js/autogear.js',
@@ -21,6 +22,11 @@ const SHELL = [
   './js/hero-icons.js',
   './js/ai.js',
   './js/manual.js',
+  './js/anim.js',
+  './js/tilemap.js',
+  './js/world.js',
+  './js/farm.js',
+  './js/npc.js',
   './js/i18n.js',
   './js/settings.js',
   './js/render.js',
@@ -34,6 +40,10 @@ const SHELL = [
 const ART = ['tileset','kenney'].map(n => './assets/tiles/' + n + '.png')
   .concat(["101", "102", "103", "104", "105", "106", "107", "108", "109", "110", "111", "113", "114", "115", "116", "117", "118", "119", "120", "121", "122", "125", "126", "127", "128", "129", "130", "131", "g1", "g2", "g3", "g4", "h0", "h1", "h10", "h11", "h12", "h13", "h14", "h15", "h16", "h17", "h18", "h19", "h2", "h20", "h21", "h22", "h23", "h24", "h25", "h3", "h4", "h5", "h6", "h7", "h8", "h9"].map(n => './assets/sprites/' + n + '.png'));
 
+// Opsional: bila file tidak ada di hosting, instalasi tetap berhasil (dunia memakai warna polos sebagai cadangan).
+const ART_OPT = ['adv','plants'].map(n => './assets/tiles/' + n + '.png')
+  .concat(['atlas.json','avatar.png','props.png','village.json','tiles.png','sprites.png','sea.png'].map(n => './assets/world/' + n)); // Sunnyside World (anim.js; ada cadangan bila hilang)
+
 // Audio disimpan sejak awal supaya musik dan efek suara langsung jalan saat offline.
 // Dicoba satu per satu: bila ada file yang tidak ada, instalasi tetap berhasil.
 const AUDIO = ['arrow','arrowhit','fire','explode','sword','slash','spear','ice','dark','poison','heal','shield','magic','hurt','kill','portal','coin','click','hit','cast','clear','slam','parry','limit','boss','title','battle']
@@ -42,7 +52,7 @@ const AUDIO = ['arrow','arrowhit','fire','explode','sword','slash','spear','ice'
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE)
-      .then(c => c.addAll(SHELL.concat(ART).map(u => new Request(u, { cache: 'reload' }))).then(() => Promise.allSettled(AUDIO.map(u => c.add(u)))))
+      .then(c => c.addAll(SHELL.concat(ART).map(u => new Request(u, { cache: 'reload' }))).then(() => Promise.allSettled(ART_OPT.concat(AUDIO).map(u => c.add(new Request(u, { cache: 'reload' }))))))
       .then(() => self.skipWaiting())
   );
 });
@@ -60,6 +70,8 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin !== location.origin) return;
+  // dev.js (alat uji, hanya dengan ?dev=1) tidak pernah lewat cache.
+  if (url.pathname.endsWith('/js/dev.js')) return;
 
   // Halaman: ambil versi terbaru dulu, jatuh ke cache saat offline.
   if (req.mode === 'navigate') {
