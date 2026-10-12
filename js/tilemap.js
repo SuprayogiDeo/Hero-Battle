@@ -7,6 +7,7 @@
 var Tmap = (function () {
   var BASE = 'assets/world/', V = null, ti = null, si = null, sea = null, land = null, landS = null, seaP = null;
   var pend = 0, bad = false, okf = false, ANT = [], OB = [], CR = [], T = 0, VC = {};
+  var CH = {}, CHL = [], CHSIZE = 32, CHMAX = 36, CHSEQ = 0, CHREQ = {}; // LRU cache; each baked canvas <=512x512
   var FX = { n: 0, door: {} }, LT = [], GL = null, g_ = null;   /* Tahap 6C: n = tingkat malam 0..1, door = {huruf: 0..1}, LT = cahaya tampak frame ini */
   function glow() { if (GL) return GL; GL = cv(64, 64); var x = GL.getContext('2d'), q = x.createRadialGradient(32, 32, 0, 32, 32, 32); q.addColorStop(0, 'rgba(255,214,120,.85)'); q.addColorStop(.35, 'rgba(255,180,80,.35)'); q.addColorStop(1, 'rgba(255,150,50,0)'); x.fillStyle = q; x.fillRect(0, 0, 64, 64); return GL; }
   /* Tahap 6D: ladang hidup. farm(p, now, nm, FC): p = S.farm.p (12 petak, urutan = V.farm), nm = nama tanaman atlas per jenis, FC = daftar jenis (ms). Hanya MEMBACA. */
@@ -65,45 +66,35 @@ var Tmap = (function () {
   function init(base) {
     if (base) BASE = base;
     try {
-      fetch(BASE + 'village.json').then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) {
-        V = j; ti = load(BASE + j.tiles); si = load(BASE + j.sprites); sea = load(BASE + j.sea);
+      fetch(BASE + 'index.json').then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) {
+        V = j; CHSIZE = j.chunkSize || 32; ti = load(BASE + j.tiles); si = load(BASE + j.sprites); sea = load(BASE + j.sea);
       }).catch(function () { bad = true; });
     } catch (e) { bad = true; }
   }
   function cv(w, h) { var c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
   function bake() {
-    if (bad || !V) return;
+    if (bad || !V || !ti || !si || !sea || !ti.complete || !si.complete || !sea.complete) return;
     try {
-      var W = V.w, H = V.h, tc = V.tcols; land = cv(W * 16, H * 16); var x = land.getContext('2d'); x.imageSmoothingEnabled = false;
-      ANT = [];
-      ['ground', 'shadow', 'decor', 'over'].forEach(function (L) {   /* 'over' (Tahap 6B): pagar jembatan, buih air terjun */
-        var a = V.layers[L]; if (!a) return;
-        for (var i = 0; i < a.length; i++) {
-          var n = a[i]; if (!n) continue; var cx = (i % W) * 16, cy = ((i / W) | 0) * 16;
-          if (V.anim[n]) { ANT.push({ x: cx, y: cy, f: V.anim[n] }); continue; }
-          x.drawImage(ti, (n % tc) * 16, ((n / tc) | 0) * 16, 16, 16, cx, cy, 16, 16);
-        }
-      });
-      var p = cv(128, 128), pc = p.getContext('2d'); pc.imageSmoothingEnabled = false; pc.drawImage(sea, 0, 0, 64, 64, 0, 0, 128, 128);
-      seaP = p; OB = V.objects.map(function (o) { return o; });
-      CR = [];
-      V.animals.forEach(function (a, k) {
-        for (var i = 0; i < a.n; i++) { var z = a.z; var ox = z[0] + Math.random() * (z[2] - z[0]), oy = z[1] + Math.random() * (z[3] - z[1]);
-          CR.push({ a: a.a, x: ox, y: oy, tx: ox, ty: oy, w: Math.random() * 3, fl: Math.random() < .5, mv: 0, z: z, sp: a.a == 'animal_chicken' ? 11 : a.a == 'animal_cow' ? 6 : 8 }); }
-      });
+      var p = cv(128,128), pc = p.getContext('2d'); pc.imageSmoothingEnabled = false; pc.drawImage(sea,0,0,64,64,0,0,128,128); seaP=p;
+      OB = V.objects || []; ANT=[]; CR=[];
+      (V.animals || []).forEach(function(a){ for(var i=0;i<a.n;i++){var z=a.z,ox=z[0]+Math.random()*(z[2]-z[0]),oy=z[1]+Math.random()*(z[3]-z[1]);CR.push({a:a.a,x:ox,y:oy,tx:ox,ty:oy,w:Math.random()*3,fl:Math.random()<.5,mv:0,z:z,sp:a.a=='animal_chicken'?11:a.a=='animal_cow'?6:8});}});
       okf = true;
-    } catch (e) { bad = true; }
+    } catch(e) { bad=true; }
   }
-  function snowLand() {
-    if (landS) return landS;
-    landS = cv(land.width, land.height); var x = landS.getContext('2d'); x.drawImage(land, 0, 0);
-    var im = x.getImageData(0, 0, landS.width, landS.height), d = im.data;
-    for (var i = 0; i < d.length; i += 4) {
-      if (!d[i + 3]) continue; var r = d[i], g = d[i + 1], b = d[i + 2], k = (g > r + 6 && g > b) ? .74 : (r > g && r > b) ? .5 : 0;
-      if (k) { d[i] += (232 - r) * k; d[i + 1] += (241 - g) * k; d[i + 2] += (250 - b) * k; }
-    }
-    x.putImageData(im, 0, 0); return landS;
+  function chunkKey(x,y){return x+'_'+y;}
+  function requestChunk(cx,cy){
+    if(cx<0||cy<0||cx*CHSIZE>=V.w||cy*CHSIZE>=V.h)return;
+    var key=chunkKey(cx,cy); if(CH[key]){CH[key].used=++CHSEQ;return;} if(CHREQ[key])return; CHREQ[key]=1;
+    var meta=(V.chunks||[]).filter(function(c){return c.x==cx&&c.y==cy;})[0]; if(!meta){delete CHREQ[key];return;}
+    fetch(BASE+meta.file).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(d){
+      var c=cv(d.w*16,d.h*16),g=c.getContext('2d');g.imageSmoothingEnabled=false;var anim=[];
+      ['ground','shadow','decor','over'].forEach(function(L){var a=d.layers[L]||[];for(var i=0;i<a.length;i++){var n=a[i];if(!n)continue;var x=(i%d.w)*16,y=((i/d.w)|0)*16;if(V.anim&&V.anim[n])anim.push({x:d.x*16+x,y:d.y*16+y,f:V.anim[n]});else g.drawImage(ti,(n%V.tcols)*16,((n/V.tcols)|0)*16,16,16,x,y,16,16);}});
+      CH[key]={x:cx*CHSIZE*16,y:cy*CHSIZE*16,w:d.w*16,h:d.h*16,canvas:c,anim:anim,snow:null,used:++CHSEQ,collision:d.layers.collision||[]};
+      CHL.push(key); trimChunks();
+    }).catch(function(){bad=true;}).then(function(){delete CHREQ[key];});
   }
+  function trimChunks(){while(CHL.length>CHMAX){var idx=0,old=Infinity;for(var i=0;i<CHL.length;i++){var c=CH[CHL[i]];if(c&&c.used<old){old=c.used;idx=i;}}var k=CHL.splice(idx,1)[0];delete CH[k];}}
+  function snowChunk(ch){if(ch.snow)return ch.snow;var c=cv(ch.w,ch.h),x=c.getContext('2d');x.drawImage(ch.canvas,0,0);var im=x.getImageData(0,0,ch.w,ch.h),d=im.data;for(var i=0;i<d.length;i+=4){if(!d[i+3])continue;var r=d[i],g=d[i+1],b=d[i+2],k=(g>r+6&&g>b)?.74:(r>g&&r>b)?.5:0;if(k){d[i]+=(232-r)*k;d[i+1]+=(241-g)*k;d[i+2]+=(250-b)*k;}}x.putImageData(im,0,0);ch.snow=c;return c;}
   /* kritter berkeliaran di padang */
   function update(dt) {
     if (!okf) return; T += dt;
@@ -124,14 +115,9 @@ var Tmap = (function () {
   function draw(g, cx, cy, OX, VW, snow) {
     if (!okf) return; var old = g.imageSmoothingEnabled; g.imageSmoothingEnabled = false;
     sea_(g, cx, cy, OX, VW, snow);
-    var src = snow ? snowLand() : land, sx = cx >> 1, sy = cy >> 1, offx = cx & 1, offy = cy & 1;
-    var sw = Math.min(Math.ceil(VW / 2) + 1, src.width - sx), sh = Math.min(181, src.height - sy);
-    g.drawImage(src, sx, sy, sw, sh, -OX - offx, -offy, sw * 2, sh * 2);
-    var tc = V.tcols;
-    for (var i = 0; i < ANT.length; i++) {
-      var a = ANT[i], px = a.x * 2 - cx - OX, py = a.y * 2 - cy; if (px < -32 || px > VW || py < -32 || py > 360) continue;
-      var n = a.f[Math.floor(T * 2.2) % a.f.length]; g.drawImage(ti, (n % tc) * 16, ((n / tc) | 0) * 16, 16, 16, px, py, 32, 32);
-    }
+    var tc=V.tcols, cpx=Math.floor(cx/(CHSIZE*32)), cpy=Math.floor(cy/(CHSIZE*32));
+    for(var yy=cpy-2;yy<=cpy+2;yy++)for(var xx=cpx-2;xx<=cpx+2;xx++)requestChunk(xx,yy);
+    for(var ci=0;ci<CHL.length;ci++){var ch=CH[CHL[ci]];if(!ch)continue;var dx=ch.x*2-cx-OX,dy=ch.y*2-cy;if(dx>VW||dx+ch.w*2<0||dy>360||dy+ch.h*2<0)continue;ch.used=++CHSEQ;g.drawImage(snow?snowChunk(ch):ch.canvas,0,0,ch.w,ch.h,dx,dy,ch.w*2,ch.h*2);for(var ai=0;ai<ch.anim.length;ai++){var a=ch.anim[ai],px=a.x*2-cx-OX,py=a.y*2-cy;if(px<-32||px>VW||py<-32||py>360)continue;var n=a.f[Math.floor(T*2.2)%a.f.length];g.drawImage(ti,(n%tc)*16,((n/tc)|0)*16,16,16,px,py,32,32);}}
     farmGround(g, cx, cy, OX, VW, snow);
     g.imageSmoothingEnabled = old;
   }

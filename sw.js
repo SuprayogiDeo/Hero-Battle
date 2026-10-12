@@ -1,5 +1,5 @@
 // Hero Battle service worker. Naikkan VERSION setiap kali Anda mengganti file game.
-const VERSION = 'v31';
+const VERSION = 'v32';
 const CACHE = 'hero-battle-' + VERSION;
 const SHELL = [
   './',
@@ -42,7 +42,7 @@ const ART = ['tileset','kenney'].map(n => './assets/tiles/' + n + '.png')
 
 // Opsional: bila file tidak ada di hosting, instalasi tetap berhasil (dunia memakai warna polos sebagai cadangan).
 const ART_OPT = ['adv','plants'].map(n => './assets/tiles/' + n + '.png')
-  .concat(['atlas.json','avatar.png','props.png','chars.png','village.json','tiles.png','sprites.png','sea.png'].map(n => './assets/world/' + n)); // Sunnyside World (anim.js; ada cadangan bila hilang)
+  .concat(['atlas.json','avatar.png','props.png','chars.png','village.json','index.json','tiles.png','sprites.png','sea.png'].map(n => './assets/world/' + n)); // Sunnyside World (anim.js; ada cadangan bila hilang)
 
 // Audio disimpan sejak awal supaya musik dan efek suara langsung jalan saat offline.
 // Dicoba satu per satu: bila ada file yang tidak ada, instalasi tetap berhasil.
@@ -52,7 +52,8 @@ const AUDIO = ['arrow','arrowhit','fire','explode','sword','slash','spear','ice'
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE)
-      .then(c => c.addAll(SHELL.concat(ART).map(u => new Request(u, { cache: 'reload' }))).then(() => Promise.allSettled(ART_OPT.concat(AUDIO).map(u => c.add(new Request(u, { cache: 'reload' }))))))
+      .then(c => c.addAll(SHELL.concat(ART).map(u => new Request(u, { cache: 'reload' }))).then(() => Promise.allSettled(ART_OPT.concat(AUDIO).map(u => c.add(new Request(u, { cache: 'reload' }))))
+        .then(() => fetch('./assets/world/index.json').then(r => r.ok ? r.json() : null).then(idx => idx && idx.chunks ? Promise.allSettled(idx.chunks.map(ch => c.add(new Request('./assets/world/' + ch.file, { cache: 'reload' })))) : []))))
       .then(() => self.skipWaiting())
   );
 });
