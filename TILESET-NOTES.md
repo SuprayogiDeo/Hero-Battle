@@ -42,3 +42,12 @@ Dilarang: dijual/dikemas ulang/dipakai melatih AI (lihat CREDITS).
 - Uji jangkauan BFS (tingkat sel) dijalankan build_village.py: NPC, pintu bangunan, tangga harus terjangkau dari spawn.
 ## Keterbatasan
 Hanya satu tebing dalam + satu sungai lurus (tanpa tikungan); jalan tanpa diagonal panjang (hanya sudut terpotong); `tileset_forest` (32 px) belum dipakai.
+
+## Tahap 6D: ladang hidup di dunia
+- `tools/build_farm.py` (idempoten) memindahkan 12 objek `crop_*` dekor menjadi `farm` = 12 slot [x,y] (urutan = indeks petak farm.js). Bila `farm` tidak ada, dekor lama tampil seperti dulu.
+- tilemap.js `Tmap.farm(S.farm.p, Date.now(), WCROP, FC)` hanya MEMBACA state; logika farm.js tidak diubah. Petak: rumput (s=0) = tanah hijau + rumput, tanah (s=1) = alur cangkul, tanaman (s=2) = frame atlas 1..4 menurut q=(now-t)/ms (4 = matang, berkilau). Wortel=carrot, Labu=pumpkin, Bunga Bulan=cauliflower (WCROP di world.js).
+
+## Tahap 6C: bangunan hidup + siang-malam
+- `tools/build_lights.py` (idempoten) menambah `spr.<nama>.win` ([x,y,w,h] jendela, dideteksi dari piksel biru-tua 38,43,68 di sprites.png) dan `.door` (hanya Toko & Barak, diukur dari gambar) ke village.json. Tidak membangun ulang peta.
+- tilemap.js: `Tmap.fx(malam0..1, {S,R})` dipanggil tiap frame sebelum `Tmap.tall`; `Tmap.lights(g)` menggambar cahaya aditif SETELAH tint. Pintu = celah gelap + cahaya hangat yang melebar; jendela menyala 80% (deterministik); lentera berpendar.
+- world.js: `wTone(jam)` interpolasi keyframe `WTK` (ubah di sini untuk menyetel warna/kegelapan). `S.set.dn`: 0 siklus cepat (6 menit/hari, mulai jam 9, tidak disimpan), 1 jam perangkat, 2 siang tetap. Satu fillRect per frame.

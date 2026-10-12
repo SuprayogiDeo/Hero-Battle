@@ -7,6 +7,58 @@
 var Tmap = (function () {
   var BASE = 'assets/world/', V = null, ti = null, si = null, sea = null, land = null, landS = null, seaP = null;
   var pend = 0, bad = false, okf = false, ANT = [], OB = [], CR = [], T = 0, VC = {};
+  var FX = { n: 0, door: {} }, LT = [], GL = null, g_ = null;   /* Tahap 6C: n = tingkat malam 0..1, door = {huruf: 0..1}, LT = cahaya tampak frame ini */
+  function glow() { if (GL) return GL; GL = cv(64, 64); var x = GL.getContext('2d'), q = x.createRadialGradient(32, 32, 0, 32, 32, 32); q.addColorStop(0, 'rgba(255,214,120,.85)'); q.addColorStop(.35, 'rgba(255,180,80,.35)'); q.addColorStop(1, 'rgba(255,150,50,0)'); x.fillStyle = q; x.fillRect(0, 0, 64, 64); return GL; }
+  /* Tahap 6D: ladang hidup. farm(p, now, nm, FC): p = S.farm.p (12 petak, urutan = V.farm), nm = nama tanaman atlas per jenis, FC = daftar jenis (ms). Hanya MEMBACA. */
+  var FM = null;
+  function farm(p, now, nm, fc) { FM = (V && V.farm && p) ? { p: p, now: now, nm: nm, fc: fc } : null; }
+  var TUF = [[-18, -14], [-8, -8], [4, -16], [14, -10], [-12, -3], [10, -2]];
+  function farmGround(g, cx, cy, OX, VW, snow) {
+    if (!FM) return; var F = V.farm, i, k, p, px, py;
+    for (i = 0; i < F.length && i < FM.p.length; i++) {
+      p = FM.p[i]; if (!p) continue; px = F[i][0] * 2 - cx - OX; py = F[i][1] * 2 - cy; if (px < -40 || px > VW + 40 || py < -10 || py > 400) continue;
+      if (p.s == 0) { g.fillStyle = '#3f7d3a'; g.fillRect(px - 26, py - 20, 52, 22); g.fillStyle = '#5fae4c'; for (k = 0; k < 6; k++) { g.fillRect(px + TUF[k][0], py + TUF[k][1], 2, 4); g.fillRect(px + TUF[k][0] + 2, py + TUF[k][1] + 2, 2, 2); } }
+      else { g.fillStyle = '#5a3a20'; g.fillRect(px - 26, py - 20, 52, 22); g.fillStyle = '#3d2615'; g.fillRect(px - 22, py - 15, 44, 3); g.fillRect(px - 22, py - 8, 44, 3); g.fillRect(px - 22, py - 1, 44, 3); }
+      if (snow) { g.fillStyle = 'rgba(236,243,250,.4)'; g.fillRect(px - 26, py - 20, 52, 22); }
+    }
+  }
+  function farmCrops(add) {
+    if (!FM) return; var F = V.farm;
+    F.forEach(function (s, i) {
+      var p = FM.p[i], nm, q, ripe, st; if (!p || p.s != 2) return; nm = FM.nm[p.c]; if (!nm || !FM.fc[p.c]) return;
+      q = Math.max(0, Math.min(1, (FM.now - p.t) / FM.fc[p.c].ms)); ripe = q >= 1; st = ripe ? 4 : 1 + Math.min(3, Math.floor(q * 4));   /* frame atlas 1..4 (0 = ikon benih, 5 = ikon hasil) */
+      add(s[0] * 2, s[1] * 2, 60, function (sx, sb) {
+        Anim.draw(g_, 'crop_' + nm + '_' + st, 0, sx, sb - 4, false, 2);
+        if (ripe) { var ph = (T * 2.2 + i * .37) % 1; if (ph < .5) { var ox = sx + (i % 3 - 1) * 9, oy = sb - 46; g_.fillStyle = 'rgba(255,246,176,' + Math.sin(ph * 6.2832).toFixed(2) + ')'; g_.fillRect(ox - 1, oy - 3, 2, 7); g_.fillRect(ox - 3, oy - 1, 7, 2); } }
+      });
+    });
+  }
+  function fx(n, door) { FX.n = n || 0; FX.door = door || {}; LT.length = 0; }
+  /* pintu terbuka: celah gelap melebar dari tengah + cahaya hangat dari dalam */
+  function doorFx(g, d, x, y, p) {
+    var w = d[2] * 2, h = d[3] * 2, ow = Math.max(2, Math.round(w * p)), dx = Math.round(x + d[0] * 2 + (w - ow) / 2), dy = Math.round(y + d[1] * 2);
+    g.fillStyle = '#150d1c'; g.fillRect(dx, dy, ow, h);
+    var q = g.createLinearGradient(0, dy, 0, dy + h); q.addColorStop(0, 'rgba(255,200,110,0)'); q.addColorStop(1, 'rgba(255,200,110,.6)'); g.fillStyle = q; g.fillRect(dx, dy, ow, h);
+    g.fillStyle = 'rgba(255,225,150,.9)'; g.fillRect(dx, dy + h - 2, ow, 2);
+  }
+  /* jendela menyala di malam hari (sebelum tint); 80% jendela menyala, deterministik */
+  function winFx(g, r, o, x, y) {
+    var a = FX.n, i, k; g.fillStyle = 'rgba(255,213,120,' + Math.min(1, a * 1.4).toFixed(2) + ')';
+    for (i = 0; i < r.win.length; i++) {
+      if ((((o.x * 7 + o.y * 3 + i * 5) % 10) + 10) % 10 > 7) continue; k = r.win[i];
+      var wx = x + k[0] * 2, wy = y + k[1] * 2; g.fillRect(wx, wy, k[2] * 2, k[3] * 2);
+      LT.push([wx + k[2], wy + k[3], 20, .55, wx, wy, k[2] * 2, k[3] * 2]);
+    }
+  }
+  /* lapisan cahaya aditif: dipanggil world.js SETELAH tint malam supaya tetap terang */
+  function lights(g) {
+    if (FX.n < .02 || !LT.length) return; var old = g.globalCompositeOperation, i, l, im = glow(); g.globalCompositeOperation = 'lighter';
+    for (i = 0; i < LT.length; i++) {
+      l = LT[i]; g.globalAlpha = Math.min(1, FX.n * l[3]); g.drawImage(im, l[0] - l[2], l[1] - l[2], l[2] * 2, l[2] * 2);
+      if (l.length > 4) { g.globalAlpha = FX.n * .35; g.fillStyle = '#a07828'; g.fillRect(l[4], l[5], l[6], l[7]); }
+    }
+    g.globalAlpha = 1; g.globalCompositeOperation = old;
+  }
   function ready() { return okf && !bad; }
   function data() { return V; }
   function load(src, cb) { pend++; var im = new Image(); im.onload = function () { pend--; cb && cb(im); if (!pend) bake(); }; im.onerror = function () { bad = true; pend--; }; im.src = src; return im; }
@@ -80,6 +132,7 @@ var Tmap = (function () {
       var a = ANT[i], px = a.x * 2 - cx - OX, py = a.y * 2 - cy; if (px < -32 || px > VW || py < -32 || py > 360) continue;
       var n = a.f[Math.floor(T * 2.2) % a.f.length]; g.drawImage(ti, (n % tc) * 16, ((n / tc) | 0) * 16, 16, 16, px, py, 32, 32);
     }
+    farmGround(g, cx, cy, OX, VW, snow);
     g.imageSmoothingEnabled = old;
   }
   function variant(k, md) {
@@ -100,14 +153,21 @@ var Tmap = (function () {
       (function (o, r) { add(wx, wy, r.h * 2, function (sx, sb) {
         var md = (o.c && o.c != 'f' && 'SR'.indexOf(o.c) >= 0 && lockFn(o.c)) ? 'l' : snow ? 's' : '';
         var im = md ? variant(o.k, md) : si, a = md ? 0 : r.x, b = md ? 0 : r.y;
-        g.drawImage(im, a, b, r.w, r.h, Math.round(sx - r.w), Math.round(sb - r.h * 2), r.w * 2, r.h * 2); }); })(o, r);
+        g.drawImage(im, a, b, r.w, r.h, Math.round(sx - r.w), Math.round(sb - r.h * 2), r.w * 2, r.h * 2);
+        if (md != 'l' && (r.door || r.win)) {
+          var fx0 = Math.round(sx - r.w), fy0 = Math.round(sb - r.h * 2), dp = o.c ? FX.door[o.c] : 0;
+          if (r.door && dp > .02) doorFx(g, r.door, fx0, fy0, dp);
+          if (r.win && FX.n > .02) winFx(g, r, o, fx0, fy0);
+        }
+        if (o.k == 'lamp' && FX.n > .02) LT.push([sx, Math.round(sb - r.h * 2) + 8, 46, .8]); }); })(o, r);
     }
+    g_ = g; farmCrops(add);
     CR.forEach(function (c) { add(c.x * 2, c.y * 2, 70, function (sx, sb) { Anim.draw(g, c.a, c.mv ? tm + c.x * 13 : 0, sx, sb, c.fl, 2); Anim.shadow(g, sx, sb - 1, 9, 3, .25); }); });
     V.smoke.forEach(function (s, k) { add(s.x * 2, s.y * 2 + 2, 120, function (sx, sb) { Anim.draw(g, s.a, tm + k * 700, sx, sb, false, 2); }); });
     var w = V.windmill, tw = OB.filter(function (o) { return o.k == 'windtower'; })[0];
     add(w.x * 2, w.y * 2, 140, function (sx, sb) { Anim.draw(g, 'windmill', tm, sx, sb, false, 2); }, tw ? tw.y * 2 + 1 : null);
     return out;
   }
-  return { init: init, ready: ready, data: data, update: update, draw: draw, tall: tall };
+  return { init: init, ready: ready, data: data, update: update, draw: draw, tall: tall, fx: fx, lights: lights, farm: farm };
 })();
 try { Tmap.init(); } catch (e) { }

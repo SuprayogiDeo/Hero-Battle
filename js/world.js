@@ -85,7 +85,16 @@ function updWorld(dt){const w=S.world;let dx=wjx,dy=wjy;const kx=(KD.d||KD.arrow
 if(wDlg||wTalk)dx=dy=0;let mv=0;if(dx||dy){const nx=w.x+dx*WSPEED*dt,ny=w.y+dy*WSPEED*dt;if(!wBlocked(nx,w.y)){w.x=nx;mv=1}if(!wBlocked(w.x,ny)){w.y=ny;mv=1}if(dx)wface=dx>0?1:-1}
 wwalk=mv?wwalk+dt:0;if(mv)qDirty=1;if(wAct)wAct.update(mv?dx:0,mv?dy:0);if(wVon)Tmap.update(dt);if(self.npcUpdate)npcUpdate(dt);
 const tx=Math.max(0,Math.min(WW*WS-VW,w.x-VW/2)),ty=Math.max(0,Math.min(WH*WS-360,w.y-14-180));
-if(wcx==null){wcx=tx;wcy=ty}else{const k=1-Math.exp(-10*dt);wcx+=(tx-wcx)*k;wcy+=(ty-wcy)*k}if(wHint>0)wHint-=dt;if(wMsg.t>0)wMsg.t-=dt;wNear=wNearB();wNpc=self.npcNear?npcNear(w.x,w.y):null}
+if(wcx==null){wcx=tx;wcy=ty}else{const k=1-Math.exp(-10*dt);wcx+=(tx-wcx)*k;wcy+=(ty-wcy)*k}if(wHint>0)wHint-=dt;if(wMsg.t>0)wMsg.t-=dt;wNear=wNearB();wNpc=self.npcNear?npcNear(w.x,w.y):null;wFx(dt)}
+/* ---- Tahap 6C: siklus siang-malam (tint kanvas), pintu terbuka, jendela & lentera menyala (cahaya digambar di tilemap.js) ----
+   S.set.dn: 0 = siklus cepat (6 menit/hari, mulai pagi), 1 = jam perangkat, 2 = siang tetap. Jam game tidak disimpan (sengaja, tanpa ubah save). */
+const WCROP=['carrot','pumpkin','cauliflower']; /* Tahap 6D: jenis farm.js (Wortel, Labu, Bunga Bulan) -> nama tanaman atlas */
+let wHr=9,wTn=[0,0,0,0,0];const wDoor={S:0,R:0};
+const WTK=[[0,10,16,64,.6],[5,18,24,70,.54],[6.5,255,140,70,.2],[8,255,205,150,0],[16.5,255,205,150,0],[18,255,120,50,.2],[19.5,60,40,100,.38],[21,10,16,64,.6],[24,10,16,64,.6]];
+function wTone(h){let i=1;while(i<WTK.length-1&&WTK[i][0]<h)i++;const a=WTK[i-1],b=WTK[i],k=(h-a[0])/(b[0]-a[0]),m=j=>a[j]+(b[j]-a[j])*k,al=m(4);return[m(1)|0,m(2)|0,m(3)|0,al,Math.max(0,Math.min(1,(al-.1)/.25))]}
+function wFx(dt){const m=S.set.dn|0;let h=-1;if(m==0){wHr=(wHr+dt*24/360)%24;h=wHr}else if(m==1){const d=new Date();h=d.getHours()+d.getMinutes()/60}wTn=h<0?[0,0,0,0,0]:wTone(h);
+for(const c in wDoor){const tg=(wNear&&wNear.c==c&&!wLock(c)&&!wDlg&&!wTalk)?1:0;wDoor[c]+=(tg-wDoor[c])*Math.min(1,dt*9)}}
+function wTint(){if(wTn[3]>.01){g.fillStyle='rgba('+wTn[0]+','+wTn[1]+','+wTn[2]+','+wTn[3].toFixed(3)+')';g.fillRect(-OX,0,VW,360)}if(wVon&&self.Tmap&&Tmap.lights)Tmap.lights(g)}
 const WBM={};WBLD.forEach(b=>WBM[b.c]=b);
 const WGR=[[5,13],[5,13],[5,13],[5,13],[5,13],[3,11],[4,11],[5,11],[3,12],[4,12],[5,12],[3,13],[4,13]];
 const roadOK=r=>r===undefined||',dSRGFp'.includes(r),watOK=r=>r===undefined||r=='~';
@@ -107,7 +116,7 @@ function wPlant(k,cx,cy,sc,rp){if(!(PLT.complete&&PLT.naturalWidth>0)||k==1)retu
 function drawWorld(){const w=S.world;wSn=wSnow();g.fillStyle=wSn?'#c8d6e4':'#2f5f36';g.fillRect(-OX,0,VW,360);if(wcx==null){wcx=Math.max(0,Math.min(WW*WS-VW,w.x-VW/2));wcy=Math.max(0,Math.min(WH*WS-360,w.y-194))}
 g.imageSmoothingEnabled=false;
 const cx=Math.round(wcx),cy=Math.round(wcy),x0=Math.max(0,Math.floor(cx/WS)),x1=Math.min(WW-1,Math.floor((cx+VW)/WS)),y0=Math.max(0,Math.floor(cy/WS)),y1=Math.min(WH-1,Math.floor((cy+360)/WS)),tall=[];
-if(wVon){Tmap.draw(g,cx,cy,OX,VW,wSn);tall.push(...Tmap.tall(g,cx,cy,OX,VW,wSn,wLock))}else{for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++)wTile(WMAP[ty][tx],tx*WS-cx-OX,ty*WS-cy,tx,ty);
+if(wVon){if(Tmap.farm&&typeof farmGet!='undefined')Tmap.farm(farmGet().p,Date.now(),WCROP,FC);Tmap.draw(g,cx,cy,OX,VW,wSn);if(Tmap.fx)Tmap.fx(wTn[4],wDoor);tall.push(...Tmap.tall(g,cx,cy,OX,VW,wSn,wLock))}else{for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++)wTile(WMAP[ty][tx],tx*WS-cx-OX,ty*WS-cy,tx,ty);
 if(wArt()){for(let ty=y0;ty<=Math.min(WH-1,y1+3);ty++)for(let tx=Math.max(0,x0-2);tx<=Math.min(WW-1,x1+2);tx++)if(WMAP[ty][tx]=='T')tall.push({y:ty*WS+WS-2,k:hh(ty*WW+tx,6)>.5?'t1':'t2',x:tx*WS+WS/2-cx-OX,b:ty*WS+WS-2-cy,z:1.5,md:wSn?'s':0});
 for(const c of'SR'){const b=WBM[c];if(!b)continue;tall.push({y:(b.y1+1)*WS,k:c,x:(b.x0+b.x1+1)*WS/2-cx-OX,b:(b.y1+1)*WS-cy,z:2,md:wLock(c)?'l':wSn?'s':0})}}}
 tall.sort((a,b)=>a.y-b.y);const dT=l=>l.forEach(o=>{if(o.x>-90-OX&&o.x<VW+90)(o.f?o.f():wSprite(o.k,o.x,o.b,o.z,o.md))});
@@ -117,7 +126,7 @@ dT(tall.filter(o=>o.y<=w.y));if(self.npcDraw)npcDraw(cx,cy,w.y,0);
 if(wAct&&Anim.has('avatar_'+wAct.state)){Anim.shadow(g,px,py-1,9,3,.3);wAct.draw(g,px,py,performance.now(),WZ)}
 else{g.fillStyle='rgba(0,0,0,.35)';g.beginPath();g.ellipse(px,py-1,10,4,0,0,7);g.fill();
 g.save();g.translate(px,py);if(wface<0)g.scale(-1,1);if(ok)spr(d.s,0,0,2,-bob);else{g.fillStyle=RC[d.rar];g.fillRect(-8,-30-bob,16,28)}g.restore()}
-if(self.npcDraw)npcDraw(cx,cy,w.y,1);dT(tall.filter(o=>o.y>w.y));
+if(self.npcDraw)npcDraw(cx,cy,w.y,1);dT(tall.filter(o=>o.y>w.y));wTint();
 WBLD.forEach(b=>{const sx=(b.x0+b.x1+1)*WS/2-cx-OX,ly=(b.y1+1)*WS-cy+13,my=(b.y0+b.y1+1)*WS/2-cy;if(!(sx>-90-OX&&sx<VW+90))return;const lk=wLock(b.c),rd=b.c=='F'&&!lk&&farmReady();
 if(lk){if(b.c=='F'||b.c=='Q'){g.fillStyle='rgba(10,10,25,.55)';g.fillRect(b.x0*WS-cx-OX,b.y0*WS-cy,(b.x1-b.x0+1)*WS,(b.y1-b.y0+1)*WS)}
 g.fillStyle='#ddd';g.fillRect(sx-7,my-4,14,11);g.strokeStyle='#ddd';g.lineWidth=2;g.beginPath();g.arc(sx,my-4,5,Math.PI,0);g.stroke();g.fillStyle='#333';g.fillRect(sx-1,my,2,4);

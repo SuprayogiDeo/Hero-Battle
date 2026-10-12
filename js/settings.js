@@ -12,7 +12,7 @@ function bgOff(){aPause();if(st=='fight')st='pause';if(qDirty){qDirty=0;sv()}}
 document.addEventListener('visibilitychange',()=>document.hidden?bgOff():aResume());
 addEventListener('pagehide',bgOff);addEventListener('pageshow',aResume);addEventListener('freeze',aPause);addEventListener('resume',aResume);
 function setVol(k,d){S.set[k]=Math.max(0,Math.min(10,S.set[k]+d));applyVol();sv();sfx('click')}
-function setRows(){const q=S.set,r=[];let y=42;const nx=()=>{const v=y;y+=27;return v};
+function setRows(){const q=S.set,r=[];let y=42;const nx=()=>{const v=y;y+=25;return v};
 const seg=(lab,opts,sel,fn)=>{const yy=nx(),w=Math.floor(320/opts.length);r.push({y:yy,lab,o:opts.map((p,i)=>({x:300+i*w,w:w-6,t:p,on:sel==i,f:()=>{fn(i);sv();sfx('click')}}))})};
 const vol=(lab,k)=>{const yy=nx();r.push({y:yy,lab,bar:k,o:[{x:300,w:34,t:'-',f:()=>setVol(k,-1)},{x:536,w:34,t:'+',f:()=>setVol(k,1)}]})};
 seg('Bahasa',['INDONESIA','ENGLISH'],q.lang=='en'?1:0,i=>{q.lang=i?'en':'id';TC.clear();applyLang()});
@@ -24,6 +24,7 @@ seg('Getar layar',['ON','OFF'],q.shake?0:1,i=>q.shake=i?0:1);
 seg('Angka damage',['ON','OFF'],q.dmg?0:1,i=>q.dmg=i?0:1);
 seg('Efek partikel',['TINGGI','RENDAH'],q.fx?0:1,i=>q.fx=i?1:0);
 seg(q.lang=='en'?'Season (world)':'Musim (dunia)',q.lang=='en'?['AUTO','NORMAL','SNOW']:['OTOMATIS','NORMAL','SALJU'],q.season|0,i=>q.season=i);
+seg('Siang-malam (dunia)',['SIKLUS CEPAT','JAM PERANGKAT','SIANG TETAP'],q.dn|0,i=>q.dn=i);
 r.push({y:nx(),lab:'Hapus data',o:[{x:300,w:200,t:t<resetArm?'YAKIN? KETUK LAGI':'HAPUS DATA',on:t<resetArm,f:()=>{if(t<resetArm){Save.wipe();location.reload()}else{resetArm=t+3;sfx('click')}}}]});
 return r}
 function drawSet(){ov(.92);btn(6,5,76,28,'KEMBALI');T('PENGATURAN',320,26,'#fc4',16,'center');

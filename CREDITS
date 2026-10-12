@@ -7,5 +7,11 @@ props.png, atlas.json) and are produced by tools/build_assets.py (cropped / reco
 Tahap 6A: assets/world/chars.png (avatar + 4 NPC, pose samping dan arah) dibuat tools/build_chars.py dari strip karakter dan file
 .aseprite paket yang sama (hanya digabung/dipotong; posisi rambut pada pose jalan arah dipetakan dari pose idle).
 
+Tahap 6D: tanaman ladang di dunia memakai frame crop_* yang sudah ada di assets/world/atlas.json/props.png (tanpa aset baru);
+slot petak (village.json: farm) dibuat tools/build_farm.py dari 12 tanaman dekor lama.
+
+Tahap 6C: jendela/pintu pada assets/world/village.json (spr.*.win/.door) dideteksi dari sprites.png (turunan paket yang sama) oleh tools/build_lights.py;
+efek cahaya/tint digambar lewat kode (tanpa aset baru).
+
 Tahap 5B: assets/world/tiles.png, sprites.png, sea.png dan village.json diturunkan dari tileset dan contoh scene (Room1) paket yang sama
 (dipotong/digabung saja) lewat tools/build_village.py.
