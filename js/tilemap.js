@@ -8,6 +8,7 @@ var Tmap = (function () {
   var BASE = 'assets/world/', V = null, ti = null, si = null, sea = null, land = null, landS = null, seaP = null;
   var pend = 0, bad = false, okf = false, ANT = [], OB = [], CR = [], T = 0, VC = {};
   var CH = {}, CHL = [], CHSIZE = 32, CHMAX = 36, CHSEQ = 0, CHREQ = {}; // LRU cache; each baked canvas <=512x512
+  var ZONE = '', ZT = 0, DISC_W = 128;
   var FX = { n: 0, door: {} }, LT = [], GL = null, g_ = null;   /* Tahap 6C: n = tingkat malam 0..1, door = {huruf: 0..1}, LT = cahaya tampak frame ini */
   function glow() { if (GL) return GL; GL = cv(64, 64); var x = GL.getContext('2d'), q = x.createRadialGradient(32, 32, 0, 32, 32, 32); q.addColorStop(0, 'rgba(255,214,120,.85)'); q.addColorStop(.35, 'rgba(255,180,80,.35)'); q.addColorStop(1, 'rgba(255,150,50,0)'); x.fillStyle = q; x.fillRect(0, 0, 64, 64); return GL; }
   /* Tahap 6D: ladang hidup. farm(p, now, nm, FC): p = S.farm.p (12 petak, urutan = V.farm), nm = nama tanaman atlas per jenis, FC = daftar jenis (ms). Hanya MEMBACA. */
@@ -81,6 +82,31 @@ var Tmap = (function () {
       okf = true;
     } catch(e) { bad=true; }
   }
+  function biomeAt(tx, ty) {
+    if (!V || !V.biomeRegions) return null;
+    for (var i=0;i<V.biomeRegions.length;i++){var b=V.biomeRegions[i];if(tx>=b.x&&ty>=b.y&&tx<b.x+b.w&&ty<b.y+b.h)return b;}
+    return null;
+  }
+  function explore(px, py, disc) {
+    if (!V) return disc || ''; var total=V.w*V.h, s=(typeof disc==='string'?disc:'');
+    if(s.length!==total)s=s.slice(0,total).padEnd(total,'0');
+    var tx=Math.floor(px),ty=Math.floor(py),changed=false;
+    for(var y=Math.max(0,ty-4);y<=Math.min(V.h-1,ty+4);y++)for(var x=Math.max(0,tx-4);x<=Math.min(V.w-1,tx+4);x++){
+      if(Math.hypot(x-tx,y-ty)>4.5)continue;var i=y*V.w+x;if(s.charAt(i)!=='1'){s=s.substring(0,i)+'1'+s.substring(i+1);changed=true;}
+    }
+    var b=biomeAt(tx,ty);if(b&&b.id!==ZONE){ZONE=b.id;ZT=3.2;}
+    return changed?s:(disc||s);
+  }
+  function hud(g, disc, px, py, OX, VW, dt) {
+    if(!V)return;ZT=Math.max(0,ZT-(dt||0));var x0=VW-100-OX,y0=8,w=92,h=72;
+    g.save();g.globalAlpha=.92;g.fillStyle='#17251d';g.fillRect(x0-3,y0-3,w+6,h+6);g.fillStyle='#304c37';g.fillRect(x0,y0,w,h);
+    var s=typeof disc==='string'?disc:'';for(var ty=0;ty<V.h;ty++)for(var tx=0;tx<V.w;tx++){
+      if(s.charAt(ty*V.w+tx)!=='1')continue;var b=biomeAt(tx,ty),col=b&&b.color||'#6f9b58',ch=V.grid&&V.grid[ty]?V.grid[ty].charAt(tx):'.';
+      if(ch==='~')col='#398ec0';else if(ch===',')col='#b7a071';g.fillStyle=col;g.fillRect(x0+tx/V.w*w,y0+ty/V.h*h,Math.ceil(w/V.w),Math.ceil(h/V.h));
+    }
+    g.fillStyle='#f7f0d0';g.fillRect(x0+px/V.w*w-1,y0+py/V.h*h-1,3,3);g.strokeStyle='#d8e8d5';g.lineWidth=1;g.strokeRect(x0+.5,y0+.5,w-1,h-1);g.restore();
+    if(ZT>0){var b2=biomeAt(Math.floor(px),Math.floor(py));if(b2){g.save();g.globalAlpha=Math.min(1,ZT*2);g.fillStyle='rgba(18,27,23,.82)';g.fillRect(VW/2-105-OX,12,210,29);g.strokeStyle=b2.color||'#b6d49a';g.strokeRect(VW/2-105-OX+.5,12.5,209,28);g.fillStyle='#fff4d3';g.font='bold 13px system-ui';g.textAlign='center';g.fillText((S&&S.set&&S.set.lang==='en'?b2.name_en:b2.name)||b2.id,VW/2-OX,31);g.restore();}}
+  }
   function chunkKey(x,y){return x+'_'+y;}
   function requestChunk(cx,cy){
     if(cx<0||cy<0||cx*CHSIZE>=V.w||cy*CHSIZE>=V.h)return;
@@ -147,6 +173,8 @@ var Tmap = (function () {
         }
         if (o.k == 'lamp' && FX.n > .02) LT.push([sx, Math.round(sb - r.h * 2) + 8, 46, .8]); }); })(o, r);
     }
+    (V.places || []).forEach(function (p) { add(p.x * 32, p.y * 32, 36, function (sx, sb) {
+      g.fillStyle = '#5b3822'; g.fillRect(sx - 2, sb - 20, 4, 20); g.fillStyle = p.type === 'pier' ? '#4b91b7' : p.type === 'orchard' ? '#6aaf55' : p.type === 'mushroom_grove' ? '#b27abf' : '#d9b45d'; g.fillRect(sx - 12, sb - 34, 24, 15); g.strokeStyle = '#382c24'; g.lineWidth = 1; g.strokeRect(sx - 12.5, sb - 34.5, 25, 16); g.fillStyle = '#201d18'; g.font = 'bold 7px system-ui'; g.textAlign = 'center'; g.fillText((S && S.set && S.set.lang === 'en' ? p.name_en : p.name) || p.name, sx, sb - 24); }); });
     g_ = g; farmCrops(add);
     CR.forEach(function (c) { add(c.x * 2, c.y * 2, 70, function (sx, sb) { Anim.draw(g, c.a, c.mv ? tm + c.x * 13 : 0, sx, sb, c.fl, 2); Anim.shadow(g, sx, sb - 1, 9, 3, .25); }); });
     V.smoke.forEach(function (s, k) { add(s.x * 2, s.y * 2 + 2, 120, function (sx, sb) { Anim.draw(g, s.a, tm + k * 700, sx, sb, false, 2); }); });
@@ -154,6 +182,6 @@ var Tmap = (function () {
     add(w.x * 2, w.y * 2, 140, function (sx, sb) { Anim.draw(g, 'windmill', tm, sx, sb, false, 2); }, tw ? tw.y * 2 + 1 : null);
     return out;
   }
-  return { init: init, ready: ready, data: data, update: update, draw: draw, tall: tall, fx: fx, lights: lights, farm: farm };
+  return { init: init, ready: ready, data: data, update: update, draw: draw, tall: tall, fx: fx, lights: lights, farm: farm, explore: explore, hud: hud };
 })();
 try { Tmap.init(); } catch (e) { }

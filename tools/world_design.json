@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "world": {"width": 128, "height": 96, "chunkSize": 32},
+  "biomes": [
+    {"id":"meadow","name":"Padang & Ladang","name_en":"Meadow & Farms","x":0,"y":0,"w":64,"h":48,"color":"#7eb85b"},
+    {"id":"forest","name":"Hutan Rimbun","name_en":"Deep Forest","x":64,"y":0,"w":64,"h":48,"color":"#326d42"},
+    {"id":"lake","name":"Tepi Sungai & Danau","name_en":"River & Lake","x":0,"y":48,"w":40,"h":48,"color":"#4e9ac0"},
+    {"id":"coast","name":"Pantai & Dermaga","name_en":"Coast & Pier","x":40,"y":48,"w":48,"h":48,"color":"#d7c17a"},
+    {"id":"mountain","name":"Kaki Gunung","name_en":"Mountain Foothills","x":88,"y":48,"w":40,"h":48,"color":"#8b927d"}
+  ],
+  "roads": [[30,26,30,42],[30,42,18,42],[30,42,54,42],[54,42,72,42],[72,42,72,58],[72,58,54,68],[54,68,28,68],[72,58,96,58],[96,58,108,76],[108,76,112,88]],
+  "places": [
+    {"id":"village_market","name":"Pasar Desa","name_en":"Village Market","type":"market","x":30,"y":26},
+    {"id":"fishing_pier","name":"Dermaga","name_en":"Fishing Pier","type":"pier","x":55,"y":70},
+    {"id":"fisher_hut","name":"Pondok Nelayan","name_en":"Fisherman's Hut","type":"fisher_hut","x":49,"y":73},
+    {"id":"animal_pen","name":"Kandang","name_en":"Animal Pen","type":"animal_pen","x":20,"y":39},
+    {"id":"orchard","name":"Kebun Buah","name_en":"Orchard","type":"orchard","x":80,"y":20},
+    {"id":"mushroom_wood","name":"Hutan Jamur","name_en":"Mushroom Grove","type":"mushroom_grove","x":105,"y":27}
+  ],
+  "tags": {"water":"fishing_spot", "meadow":"animal_pen_area"}
+}

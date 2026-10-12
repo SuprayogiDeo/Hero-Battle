@@ -85,7 +85,7 @@ function updWorld(dt){const w=S.world;let dx=wjx,dy=wjy;const kx=(KD.d||KD.arrow
 if(wDlg||wTalk)dx=dy=0;let mv=0;if(dx||dy){const nx=w.x+dx*WSPEED*dt,ny=w.y+dy*WSPEED*dt;if(!wBlocked(nx,w.y)){w.x=nx;mv=1}if(!wBlocked(w.x,ny)){w.y=ny;mv=1}if(dx)wface=dx>0?1:-1}
 wwalk=mv?wwalk+dt:0;if(mv)qDirty=1;if(wAct)wAct.update(mv?dx:0,mv?dy:0);if(wVon)Tmap.update(dt);if(self.npcUpdate)npcUpdate(dt);
 const tx=Math.max(0,Math.min(WW*WS-VW,w.x-VW/2)),ty=Math.max(0,Math.min(WH*WS-360,w.y-14-180));
-if(wcx==null){wcx=tx;wcy=ty}else{const k=1-Math.exp(-10*dt);wcx+=(tx-wcx)*k;wcy+=(ty-wcy)*k}if(wHint>0)wHint-=dt;if(wMsg.t>0)wMsg.t-=dt;wNear=wNearB();wNpc=self.npcNear?npcNear(w.x,w.y):null;wFx(dt)}
+if(wcx==null){wcx=tx;wcy=ty}else{const k=1-Math.exp(-10*dt);wcx+=(tx-wcx)*k;wcy+=(ty-wcy)*k}if(wVon&&Tmap.explore){const oldDisc=w.disc||'';w.disc=Tmap.explore(w.x/WS,w.y/WS,oldDisc);if(w.disc!==oldDisc)sv()}if(wHint>0)wHint-=dt;if(wMsg.t>0)wMsg.t-=dt;wNear=wNearB();wNpc=self.npcNear?npcNear(w.x,w.y):null;wFx(dt)}
 /* ---- Tahap 6C: siklus siang-malam (tint kanvas), pintu terbuka, jendela & lentera menyala (cahaya digambar di tilemap.js) ----
    S.set.dn: 0 = siklus cepat (6 menit/hari, mulai pagi), 1 = jam perangkat, 2 = siang tetap. Jam game tidak disimpan (sengaja, tanpa ubah save). */
 const WCROP=['carrot','pumpkin','cauliflower']; /* Tahap 6D: jenis farm.js (Wortel, Labu, Bunga Bulan) -> nama tanaman atlas */
@@ -139,7 +139,7 @@ if(wHint>0){g.globalAlpha=Math.min(1,wHint);T('Geser joystick kiri atau WASD unt
 if(wMsg.t>0){g.globalAlpha=Math.min(1,wMsg.t);g.fillStyle='rgba(0,0,0,.75)';g.fillRect(60,44,520,24);g.strokeStyle='#fc4';g.lineWidth=1;g.strokeRect(60.5,44.5,519,23);T(wMsg.s,320,61,'#fe8',11,'center');g.globalAlpha=1}
 if(!wDlg&&!wTalk){if(wNpc)btn(220,296,200,28,wL('E / KETUK: ','E / TAP: ')+wNpc.n[S.set.lang=='en'?1:0],1);else if(wNear)btn(220,296,200,28,wLock(wNear.c)?wL('TERKUNCI: STAGE ','LOCKED: STAGE ')+WUN[wNear.c]:'E / KETUK: '+WNAME[wNear.c],!wLock(wNear.c))}
 if(wDlg){ov(.65);card(160,66,320,196,'#fc4',1);T('GERBANG',320,92,'#fc4',16,'center');T('Mau ke mana?',320,112,'#cde',11,'center');WGD.forEach((b,i)=>btn(b[1],b[2],b[3],b[4],b[0],i<2))}
-if(self.npcUI)npcUI()}
+if(self.npcUI)npcUI();if(wVon&&Tmap.hud)Tmap.hud(g,S.world.disc||'',w.x/WS,w.y/WS,OX,VW,1/60)}
 addEventListener('pointermove',e=>{if(st=='world'&&e.pointerId===wjid){const r=cv.getBoundingClientRect();wMove((e.clientX-r.left)*VW/r.width-OX,(e.clientY-r.top)*360/r.height)}});
 const wRel=e=>{if(e.pointerId===wjid){wjid=null;wjx=wjy=0}};addEventListener('pointerup',wRel);addEventListener('pointercancel',wRel);addEventListener('blur',()=>{wjid=null;wjx=wjy=0});
 addEventListener('keydown',e=>{if(st!='world'||e.repeat)return;const k=e.key.toLowerCase();if(k=='e'||k==' '||k=='enter'){wInteract();e.preventDefault()}else if(k=='escape'){if(wDlg)wDlg=0;else wTalk=null}});
