@@ -37,3 +37,11 @@ Jenis tanaman: beetroot, cabbage, carrot, cauliflower, kale, parsnip, potato, pu
 Avatar = base + `shorthair` (+ `tools` untuk dig). Ganti rambut: konstanta `HAIR` di skrip.
 Atlas: `anims[nama] = {s: sheet, x, y, w, h, n, ax, ay, d: ms/frame, loop}`; `ax,ay` = anchor dalam sel (kaki/dasar).
 Nama: `avatar_idle|walk|dig`, `animal_{chicken,cow,pig,sheep}`, `tree_{1,2}`, `windmill`, `smoke_{1..5}`, `crop_<jenis>_<0..5>`, `soil_NN`.
+
+## Tahap 6A — karakter berlapis + pose arah
+- `tools/build_chars.py` (+ `tools/aseprite_lite.py`, pengurai .aseprite sederhana) → `assets/world/chars.png` (1024x116, 29 KB) dan 50 entri atlas baru.
+- Prefix: `avatar` (short hair), `npc_guard` (spikey), `npc_merchant` (curly), `npc_farmer` (mop), `npc_elder` (long). Base + rambut + tools.
+- Per prefix: `_idle`, `_walk` (samping) + `_idle_{s,se,ne,n}` (4 frame, 200 ms), `_walk_{s,se,ne,n}` (8 frame, 100 ms); kiri = flip.
+- Di .aseprite, `walk-*` hanya punya `bowl hair`: rambut lain dipetakan dari pose `idle-*` arah sama + selisih posisi terhadap bowl hair (dicek visual, 6 gaya x 4 arah).
+- Urutan build: build_assets.py DULU, lalu build_chars.py (menggabung ke atlas.json; `avatar_idle/walk` ditimpa, `avatar_dig` tetap).
+- Anim.Actor baru: `dir`, `face(dx,dy)`, `name()`; ambang sudut 22,5°/67,5°; horizontal murni tetap animasi samping.
