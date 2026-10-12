@@ -31,6 +31,14 @@ pinus x3, semak x3 (satu berbuah), batu x2, bunga/jamur x10, pagar horizontal/ve
 Properti lain di tileset (peti, tong, tangga, rel, patung, karpet, ikon UI, dll.) belum dipakai.
 Dilarang: dijual/dikemas ulang/dipakai melatih AI (lihat CREDITS).
 
+## Tahap 6B — sungai, pantai, tebing, sudut miring, properti
+- **Sudut miring**: `arr[1,2,4,8]` pada Path/River/Pasir = tile dengan satu sudut terpotong (TL, TR, BL, BR; bagian terpotong transparan/rumput). Jalan: sudut cembung persegi bertanda `c` di `road ... c` memakai tile ini di atas rumput (serpihan sudut lama dibuang).
+- **Sungai** (River, 1 sel): air = `arr[0]` (470); sel rumput di sisinya memakai tile tepi OPAK tunggal (S[3,12,5,10], serpihan S[7,11,13,14]) → tidak boleh digabung; tikungan sungai Room1 memakai tile air `arr[1,2,4,8]` (belum dipakai).
+- **Jembatan**: lantai tile 808 (lebar 3 sel) di atas air; pagar atas 980/919/920/919(cermin)/980(cermin), pagar bawah 400/919/920/919/400, tiang 398 (flag 4 dan 6) di lapisan `over`.
+- **Air terjun**: sungai sampai dasar pulau → tepi 859(flag 4), muka tebing 418/478/414, kilau 1420/1421, buih 1422/412.
+- **Pasir**: Path 03 (`arr[0]` penuh + rim transparan). **Tebing dalam**: baris tepi 261 + muka 267/203 bolak-balik (tile sudut 262/263/266/147 berisi laut, tidak dipakai di ujung) + bayangan 76.
+- Lapisan baru `over` di `village.json` (digambar setelah `decor`; tilemap.js melewatinya bila tidak ada).
+- Properti baru (indeks komponen terhubung Room1, `d` = decoration_01, `b` = walls/building/decoration_02/03): peti d237, tumpukan peti b84, tong d32/d247, papan d313, karung d11/d12, pot d122, tangga d118, bangku b102, kepiting d13, bintang laut d368/d7, lentera = tiang d265 + lampu b62. Tidak ada sprite 'peti harta' di paket; yang dipakai peti kayu.
+- Uji jangkauan BFS (tingkat sel) dijalankan build_village.py: NPC, pintu bangunan, tangga harus terjangkau dari spawn.
 ## Keterbatasan
-Jalan memakai sudut persegi (rim + serpihan sudut), tanpa sudut miring; tidak ada sungai, pasir, atau tebing bertingkat (hanya satu pulau persegi);
-`tileset_forest` (32 px) belum dipakai (pohon = animasi pohon 5A).
+Hanya satu tebing dalam + satu sungai lurus (tanpa tikungan); jalan tanpa diagonal panjang (hanya sudut terpotong); `tileset_forest` (32 px) belum dipakai.

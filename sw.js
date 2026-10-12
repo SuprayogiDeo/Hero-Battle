@@ -1,5 +1,5 @@
 // Hero Battle service worker. Naikkan VERSION setiap kali Anda mengganti file game.
-const VERSION = 'v27';
+const VERSION = 'v29';
 const CACHE = 'hero-battle-' + VERSION;
 const SHELL = [
   './',
@@ -42,7 +42,7 @@ const ART = ['tileset','kenney'].map(n => './assets/tiles/' + n + '.png')
 
 // Opsional: bila file tidak ada di hosting, instalasi tetap berhasil (dunia memakai warna polos sebagai cadangan).
 const ART_OPT = ['adv','plants'].map(n => './assets/tiles/' + n + '.png')
-  .concat(['atlas.json','avatar.png','props.png','village.json','tiles.png','sprites.png','sea.png'].map(n => './assets/world/' + n)); // Sunnyside World (anim.js; ada cadangan bila hilang)
+  .concat(['atlas.json','avatar.png','props.png','chars.png','village.json','tiles.png','sprites.png','sea.png'].map(n => './assets/world/' + n)); // Sunnyside World (anim.js; ada cadangan bila hilang)
 
 // Audio disimpan sejak awal supaya musik dan efek suara langsung jalan saat offline.
 // Dicoba satu per satu: bila ada file yang tidak ada, instalasi tetap berhasil.

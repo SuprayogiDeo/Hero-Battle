@@ -24,8 +24,8 @@ var Tmap = (function () {
     try {
       var W = V.w, H = V.h, tc = V.tcols; land = cv(W * 16, H * 16); var x = land.getContext('2d'); x.imageSmoothingEnabled = false;
       ANT = [];
-      ['ground', 'shadow', 'decor'].forEach(function (L) {
-        var a = V.layers[L];
+      ['ground', 'shadow', 'decor', 'over'].forEach(function (L) {   /* 'over' (Tahap 6B): pagar jembatan, buih air terjun */
+        var a = V.layers[L]; if (!a) return;
         for (var i = 0; i < a.length; i++) {
           var n = a[i]; if (!n) continue; var cx = (i % W) * 16, cy = ((i / W) | 0) * 16;
           if (V.anim[n]) { ANT.push({ x: cx, y: cy, f: V.anim[n] }); continue; }

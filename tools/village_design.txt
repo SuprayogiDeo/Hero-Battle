@@ -7,14 +7,46 @@ spawn 30 26
 # jalan (path 01) dan petak ladang (path 02): rect x0 y0 x1 y1 (inklusif)
 road 29 6 32 35           # jalan utama utara-selatan (lewat gerbang)
 road 7 22 52 24           # jalan silang timur-barat
-road 27 20 34 26          # plaza tengah
-road 18 20 20 21          # ke Toko
-road 43 20 45 21          # ke Barak
-road 12 20 13 21          # ke rumah ungu
-road 33 17 37 18          # ke Papan Misi
+road 27 20 34 26 c        # plaza tengah (c = sudut cembung dipotong, Path arr 1,2,4,8)
+road 18 20 20 21 c        # ke Toko
+road 43 20 45 21 c        # ke Barak
+road 12 20 13 21 c        # ke rumah ungu
+road 33 17 37 18 c        # ke Papan Misi
 road 13 25 14 27          # ke Ladang
-road 48 20 49 21          # ke rumah oranye
+road 48 20 49 21 c        # ke rumah oranye
 plot 9 29 18 33           # petak ladang (tanah)
+# ---- Tahap 6B ----
+river 24 7 35             # sungai 1 sel x y0 y1 (sampai dasar pulau -> air terjun otomatis)
+bridge 24 22 24           # jembatan di atas sungai x, baris y0..y1 (menimpa jalan silang)
+sand 50 7 53 9            # pantai timur laut (Path 03)
+ledge 38 52 25 gap 45     # tebing bertingkat x0 x1 y(tepi); tangga di x=45 turun ke padang hewan
+prop lamp 28 12
+prop lamp 33 12
+prop lamp 28 28
+prop lamp 33 28
+prop lamp 35 21
+prop lamp 26 25
+prop lamp 21 21
+prop board 28 9
+prop board 33 9
+prop board 37 23
+prop crate 16 20
+prop barrel 22 20
+prop barrel2 23 20
+prop crates 40 20
+prop barrel 47 17
+prop sack 38 16
+prop sack2 38 15
+prop sack 20 29
+prop sack2 20 31
+prop barrel 7 30
+prop crate 7 32
+prop bench 36 25
+prop pot 22 19
+prop crab 52 8 flat
+prop star 53 9 flat
+prop star2 51 7 flat
+prop star 50 9 flat
 # ---- bangunan: obj <sprite> <sel-kaki-x> <sel-kaki-y> [huruf] [baris-jejak] ----
 obj house_toko 19 19 S
 obj house_barak 44 19 R
@@ -27,7 +59,7 @@ obj house_green 11 12 X
 obj house_orange2 20 12 X
 obj house_redtall 44 12 X
 obj house_hut 51 12 X 1
-obj house_blue 23 31 X
+obj house_blue 27 31 X
 obj house_hut 34 31 X 1
 # ---- ladang: pagar keliling ----
 fence F 8 28 19 34
@@ -56,6 +88,6 @@ scatter flower 6 6 53 35 60 10
 scatter pine 22 25 28 28 3 11
 # ---- NPC (sel) ----
 npc guard 31 10
-npc merchant 22 23
+npc merchant 20 23
 npc farmer 15 27
 npc elder 26 19

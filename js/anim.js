@@ -76,9 +76,17 @@ var Anim = (function () {
      prefix: 'avatar' -> animasi 'avatar_idle', 'avatar_walk', 'avatar_dig'.
      Gambar sprite menghadap KANAN; menghadap kiri = flip. Atas/bawah memakai animasi jalan
      yang sama dan mempertahankan arah kiri/kanan terakhir. */
+  /* Tahap 6A: arah dari vektor gerak. null = samping (animasi kiri/kanan); 's','n','se','ne' = pose arah
+     (kiri = flip). Dipakai bila atlas punya <prefix>_idle_<arah>/<prefix>_walk_<arah>; kalau tidak -> samping. */
+  function dirOf(dx, dy) {
+    var ax = Math.abs(dx), ay = Math.abs(dy);
+    if (ay < ax * 0.414) return null;
+    if (ax < ay * 0.414) return dy > 0 ? 's' : 'n';
+    return dy > 0 ? 'se' : 'ne';
+  }
   function Actor(prefix) {
     this.prefix = prefix; this.state = 'idle'; this.t0 = 0;
-    this.flip = false; this.lastMove = -1e9; this.action = null; this.onDone = null;
+    this.flip = false; this.dir = null; this.lastMove = -1e9; this.action = null; this.onDone = null;
     this.hold = 90;   // ms tetap 'walk' setelah berhenti, anti-kedip saat joystick goyah
   }
   Actor.prototype._set = function (s, now) { if (this.state !== s) { this.state = s; this.t0 = now; } };
@@ -92,7 +100,7 @@ var Anim = (function () {
     }
     var moving = dx !== 0 || dy !== 0;
     if (dx < 0) this.flip = true; else if (dx > 0) this.flip = false;
-    if (moving) this.lastMove = now;
+    if (moving) { this.lastMove = now; this.dir = dirOf(dx, dy); }
     this._set(moving || now - this.lastMove < this.hold ? 'walk' : 'idle', now);
   };
   /* Aksi sekali jalan (mis. 'dig'); onDone dipanggil setelah selesai. */
@@ -101,10 +109,21 @@ var Anim = (function () {
     if (!has(this.prefix + '_' + action)) { if (onDone) onDone(); return false; }
     this.action = action; this.state = action; this.t0 = now; this.onDone = onDone || null; return true;
   };
+  /* Hadapkan ke vektor (dx,dy) tanpa bergerak (mis. NPC menghadap pemain). */
+  Actor.prototype.face = function (dx, dy) {
+    this.dir = dirOf(dx, dy);
+    if (dx < 0) this.flip = true; else if (dx > 0) this.flip = false;
+  };
+  /* Nama animasi yang akan digambar (pose arah bila ada, kalau tidak samping). */
+  Actor.prototype.name = function () {
+    var n = this.prefix + '_' + this.state;
+    if (this.dir && (this.state === 'idle' || this.state === 'walk')) { var nd = n + '_' + this.dir; if (has(nd)) return nd; }
+    return n;
+  };
   /* Gambar di jangkar kaki (x,y). Mengembalikan false bila atlas belum siap (pakai fallback). */
   Actor.prototype.draw = function (ctx, x, y, now, sc) {
     now = now == null ? performance.now() : now;
-    return draw(ctx, this.prefix + '_' + this.state, now - this.t0, x, y, this.flip, sc);
+    return draw(ctx, this.name(), now - this.t0, x, y, this.flip, sc);
   };
 
   return { init: init, ready: ready, has: has, info: info, duration: duration,
