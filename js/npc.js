@@ -48,7 +48,7 @@ else if(s=='sail'||s=='back'){const dir=s=='sail'?1:-1,n=o.wi+dir,p=npcBP(n),dx=
 if(Math.abs(dx)>1)o.bf=dx>0?1:-1;
 if(l<=st){o.bx=p[0];o.by=p[1];o.wi=n;if(s=='sail'&&n==NPCBR.length-1){o.st='cast';o.ft=0}else if(s=='back'&&n==0)o.st='unboard'}
 else{const nx=o.bx+dx/l*st,ny=o.by+dy/l*st;if(npcWater(nx,ny)&&npcWater(nx-18,ny)&&npcWater(nx+18,ny)){o.bx=nx;o.by=ny}}
-o.px=o.bx;o.py=o.by-8;o.face=o.bf;o.walk=1}
+o.px=o.bx;o.py=o.by-8;o.face=o.bf;o.walk=1;o.oar=(o.oar||0)-dt;if(o.oar<=0){o.oar=1.1;const w=S.world;if(S.set&&S.set.fx&&typeof sfx=='function'&&w&&Math.hypot(w.x-o.bx,w.y-o.by)<12*WS)sfx('oar')}}
 else if(s=='unboard'){const q=npcTP(32,37);if(npcMove(o,q[0],q[1],dt)){o.aboard=0;o.st='rest';o.ft=0;if(typeof lifeShopFishAdd=='function')lifeShopFishAdd()}}
 else{o.ft+=dt;if(s=='cast'&&o.ft>=NPCCAST){o.st='back';o.wi=NPCBR.length-1}else if(s=='rest'&&o.ft>=8)o.st='board'}}
 /* joran + pelampung (siklus 7 dtk: ayun, lempar, mengambang+riak, tarik) dan jaring; digambar di atas sprite nelayan */
@@ -60,6 +60,7 @@ if(p>=.9&&p<1.3){const u=(p-.9)/.4;bx=lerp(tx,Lx,u);by=lerp(ty,Ly,u)-Math.sin(u*
 else if(p>=1.3&&p<5.5){const dip=(p>3.1&&p<3.4)||(p>4.6&&p<4.8)?3:0;bx=Lx;by=Ly+Math.sin(tt*3)*1.2+dip;
 g.strokeStyle='rgba(255,255,255,.45)';g.lineWidth=1;g.beginPath();g.ellipse(bx,Ly+3,5+(tt*5)%6,2+((tt*5)%6)/3,0,0,7);g.stroke()}
 else if(p>=5.5&&p<6.3){const u=(p-5.5)/.8;bx=lerp(Lx,tx,u);by=lerp(Ly,ty,u)-Math.sin(u*Math.PI)*8}
+if(S.set&&S.set.fx){const sp=(p0,p1,n,h)=>{if(p<p0||p>=p1)return;const u=(p-p0)/(p1-p0);g.fillStyle='rgba(235,248,255,'+(1-u).toFixed(2)+')';for(let i=0;i<n;i++){const a=-Math.PI*(.15+.7*i/(n-1)),v=h*(.6+.4*((i*7)%3)/2);g.beginPath();g.arc(Lx+Math.cos(a)*v*u*.6,Ly+Math.sin(a)*v*u+u*u*h*.8,1.6,0,7);g.fill()}};sp(1.3,1.8,7,26);sp(3.1,3.4,4,12);sp(4.6,4.8,4,12)}
 g.strokeStyle='#8a5a34';g.lineWidth=2;g.beginPath();g.moveTo(hx,hy);g.lineTo(tx,ty);g.stroke();
 g.strokeStyle='rgba(255,255,255,.85)';g.lineWidth=1;g.beginPath();g.moveTo(tx,ty);if(line){g.lineTo((tx+bx)/2,(ty+by)/2+(p>=1.3&&p<5.5?6:2))}g.lineTo(bx,by);g.stroke();
 g.fillStyle='#e33';g.beginPath();g.arc(bx,by,3,0,7);g.fill();g.fillStyle='#fff';g.beginPath();g.arc(bx,by-1,1.3,0,7);g.fill()}

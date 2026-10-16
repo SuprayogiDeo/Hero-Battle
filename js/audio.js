@@ -23,6 +23,7 @@ case'arrowhit':tone(190,.07,'square',.1,{to:80,lp:900});nz(.05,.2,1800,2);tone(9
 case'fire':nz(.6,.32,350,.7,{to:1700});tone(80,.7,'sawtooth',.14,{lp:260});crk(10,0,.55);break;
 case'ice':tone(1400,.35,'triangle',.08,{to:2600,dl:1});nz(.25,.12,6000,2);tone(2200,.4,'sine',.04,{dl:1,at:.05});break;
 case'dark':tone(130,.45,'sawtooth',.1,{to:60,lp:500});nz(.35,.12,500,1,{to:150});break;
+case'oar':nz(.2,.14,1100,1,{to:350});tone(115,.12,'sine',.1,{to:70,at:.03});break;
 case'poison':nz(.35,.16,900,1.5,{to:300});tone(320,.25,'sine',.05,{to:140});break;
 case'boomS':tone(110,.28,'sine',.35,{to:42});nz(.25,.25,700,1,{to:200});crk(4,0,.2);break;
 case'explode':tone(70,1,'sine',.75,{to:24});nz(1,.55,380,.5,{to:70});tone(120,.6,'sawtooth',.15,{to:40,lp:400});crk(14,0,.9);break;
