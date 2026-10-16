@@ -14,10 +14,12 @@ const NB={R:['Barak','the Barracks'],F:['Ladang','the Field'],Q:['Papan Misi','t
 /* posisi runtime (px,py) = rumah (tx,ty) + berkeliling pendek. wUseV() menimpa tx,ty -> npcSync mereset posisi. */
 function npcSync(o){const k=o.tx+','+o.ty;if(o._k!==k){o._k=k;o.px=o.tx*WS+WS/2;o.py=o.ty*WS+26;o.mode='wait';o.wt=1+Math.random()*3;o.vx=o.vy=0;o.gx=o.gy=0}}
 const npcX=o=>(npcSync(o),o.px),npcY=o=>(npcSync(o),o.py);
+/* Jadwal harian dari lifeHour() (life.js): jam NPCDAY[0]..NPCDAY[1]-1 NPC ada di desa; di luar itu pulang (tak tampil, tak menghalangi, tak bisa diajak bicara) dan paginya muncul lagi di rumah. */
+const NPCDAY=[6,20],npcAwake=o=>{const h=typeof lifeHour=='function'?lifeHour():9;return h>=NPCDAY[0]&&h<NPCDAY[1]};
 const NPCR=WS*2,NPCSP=28,NPCV=[3,5,60,42]; /* NPCV = batas desa (tile x0,y0,x1,y1) untuk NPC roam:1 */
 function npcAc(o){if(o.ac===undefined)o.ac=typeof Anim!='undefined'?new Anim.Actor('npc_'+o.id):null;return o.ac}
 const npcOk=(x,y)=>!(wSolid(x-WFH,y-WFV)||wSolid(x+WFH,y-WFV)||wSolid(x-WFH,y)||wSolid(x+WFH,y));
-function npcUpdate(dt){const w=S.world;if(!w)return;NPCS.forEach(o=>{npcSync(o);const ac=npcAc(o),hx=o.tx*WS+WS/2,hy=o.ty*WS+26;let vx=0,vy=0;
+function npcUpdate(dt){const w=S.world;if(!w)return;NPCS.forEach(o=>{if(!npcAwake(o)){o.gone=1;return}if(o.gone){o.gone=0;o._k=null}npcSync(o);const ac=npcAc(o),hx=o.tx*WS+WS/2,hy=o.ty*WS+26;let vx=0,vy=0;
 const talk=wTalk&&wTalk.o===o,near=Math.abs(w.x-o.px)<44&&Math.abs(w.y-o.py)<34;
 if(talk||wDlg){o.mode='wait';o.wt=Math.max(o.wt,1.5)}
 else if(o.mode=='wait'){o.wt-=dt;if(o.wt<=0){if(near){o.wt=1}else{const a=Math.random()*7,rm=!!o.roam,r=rm?(3+Math.random()*7)*WS:(.4+Math.random()*.6)*NPCR,bx=rm?o.px:hx,by=rm?o.py:hy,gx=bx+Math.cos(a)*r,gy=by+Math.sin(a)*r*(rm?1:.7);let ok=npcOk(gx,gy)&&Math.hypot(gx-w.x,gy-w.y)>40&&(!rm||gx>=NPCV[0]*WS&&gx<=NPCV[2]*WS&&gy>=NPCV[1]*WS&&gy<=NPCV[3]*WS);
@@ -26,8 +28,8 @@ else{const dx=o.gx-o.px,dy=o.gy-o.py,l=Math.hypot(dx,dy);if(l<2||near&&Math.hypo
 else{const sx=dx/l,sy=dy/l,nx=o.px+sx*NPCSP*dt,ny=o.py+sy*NPCSP*dt;
 if(npcOk(nx,ny)&&!(Math.abs(nx-w.x)<19&&Math.abs(ny-w.y)<13)){o.px=nx;o.py=ny;vx=sx;vy=sy}else{o.mode='wait';o.wt=1+Math.random()*2}}}
 if(ac){ac.update(vx,vy);if(talk)ac.face(w.x-o.px,w.y-o.py)}})}
-function npcHit(x,y){for(const o of NPCS)if(Math.abs(x-npcX(o))<15&&Math.abs(y-npcY(o))<10)return true;return false}
-function npcNear(px,py){let b=null,bd=34;for(const o of NPCS){const d=Math.hypot(px-npcX(o),py-npcY(o));if(d<bd){bd=d;b=o}}return b}
+function npcHit(x,y){for(const o of NPCS)if(npcAwake(o)&&Math.abs(x-npcX(o))<15&&Math.abs(y-npcY(o))<10)return true;return false}
+function npcNear(px,py){let b=null,bd=34;for(const o of NPCS){if(!npcAwake(o))continue;const d=Math.hypot(px-npcX(o),py-npcY(o));if(d<bd){bd=d;b=o}}return b}
 function npcLines(o){const b=best,r=[];
 if(o.id=='guard'){r.push(wL('Halo, selamat datang. Gerbang ini menuju medan pertempuran.','Hi, welcome. This gate leads to the battlefield.'));
 r.push(b>0?wL('Rekormu stage '+b+'. Teruslah maju!','Your record is stage '+b+'. Keep going!'):wL('Belum pernah bertarung? Mulai dari Stage 1.','Not fought yet? Start from Stage 1.'));
@@ -54,7 +56,7 @@ r.push(wSn?wL('Salju turun. Hangatkan dirimu, ya.','Snow is falling. Stay warm.'
 return r}
 function npcStart(o){wjid=null;wjx=wjy=0;wTalk={n:o.n[S.set.lang=='en'?1:0],ls:npcLines(o),i:0,o:o};const ac=npcAc(o);if(ac)ac.face(S.world.x-npcX(o),S.world.y-npcY(o));sfx('click')}
 function npcAdv(){const d=wTalk;if(!d)return;sfx('click');if(d.i<d.ls.length-1)d.i++;else wTalk=null}
-function npcDraw(cx,cy,py,pass){const w=S.world;NPCS.forEach((o,k)=>{const fy=npcY(o),back=fy<=py;if((pass==0)!=back)return;
+function npcDraw(cx,cy,py,pass){const w=S.world;NPCS.forEach((o,k)=>{if(!npcAwake(o))return;const fy=npcY(o),back=fy<=py;if((pass==0)!=back)return;
 const sx=npcX(o)-cx-OX,sy=fy-cy;if(sx<-40-OX||sx>VW+40||sy<-40||sy>400)return;
 const ac=npcAc(o),nw=ac&&Anim.has('npc_'+o.id+'_'+ac.state);let bob=0;const nr=wNpc===o;
 if(nw){Anim.shadow(g,sx,sy-1,9,3,.3);ac.draw(g,sx,sy,performance.now(),WZ)}
