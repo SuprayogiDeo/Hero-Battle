@@ -26,6 +26,7 @@ const ctx = {
 };
 ctx.self=ctx;vm.createContext(ctx);
 vm.runInContext(fs.readFileSync(path.join(root,'js/life.js'),'utf8'),ctx,{timeout:3000});
+{const nsrc=fs.readFileSync(path.join(root,'js/npc.js'),'utf8'),i=nsrc.indexOf('const smithL=');vm.runInContext(nsrc.slice(i,nsrc.indexOf('\n',i)+1)+nsrc.slice(nsrc.indexOf('/* TABIB')),ctx,{timeout:3000})}
 const run = code => vm.runInContext(code,ctx,{timeout:3000});
 
 // One-tap bite edge case, species book, and daily fishing cap.

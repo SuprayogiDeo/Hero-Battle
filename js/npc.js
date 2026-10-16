@@ -150,3 +150,19 @@ btn(20,310,90,26,'<',smithPage>0);T((smithPage+1)+'/'+(mx+1),320,328,'#cde',10,'
 function smithClick(x,y){if(y<34&&x<85){goBack();return}const L=smithItems(),mx=Math.max(0,Math.ceil(L.length/SMITH_ROWS)-1);
 if(y>=310&&y<=336){if(x<=110&&smithPage>0)smithPage--;else if(x>=530&&smithPage<mx)smithPage++;return}
 L.slice(smithPage*SMITH_ROWS,smithPage*SMITH_ROWS+SMITH_ROWS).forEach((it,i)=>{const y0=62+i*48;if(x>=500&&x<=612&&y>=y0+8&&y<=y0+34)smithUpgrade(it)})}
+
+/* TABIB: sembuhkan racun/bakar (S.ail = sisa stage) & beli ramuan sementara (S.tonic, hitungan stage). Sakit datang dari laba-laba (racun) dan Iblis Merah (bakar). */
+const HEALER_CURE=60,HEALER_BUFFS=[{id:'str',n:['Ramuan Kekuatan','Strength Tonic'],g:150,atk:.08,hp:0,stages:3},{id:'vit',n:['Ramuan Vitalitas','Vitality Tonic'],g:150,atk:0,hp:.08,stages:3},{id:'bal',n:['Tonik Tabib','Healer Tonic'],g:300,atk:.05,hp:.05,stages:5}];
+function healerEnsure(){if(!S.ail||typeof S.ail!=='object')S.ail={};S.ail.poison=Math.max(0,S.ail.poison|0);S.ail.burn=Math.max(0,S.ail.burn|0);if(!('last' in S.ail))S.ail.last=null;if(!S.tonic||typeof S.tonic!=='object'||!(S.tonic.stages>0))S.tonic=null}
+function healerInfect(k){healerEnsure();S.ail[k]=3}
+function healerCure(k){healerEnsure();if(!(S.ail[k]>0)){say(smithL('Kamu tidak sakit.','You are not afflicted.'));return'none'}if(S.g<HEALER_CURE){say(smithL('Emas tidak cukup','Not enough gold'));return'gold'}S.g-=HEALER_CURE;S.ail[k]=0;sv();sfx('heal');return'ok'}
+function healerBuy(id){healerEnsure();const b=HEALER_BUFFS.find(q=>q.id===id);if(!b)return'none';if(S.g<b.g){say(smithL('Emas tidak cukup','Not enough gold'));return'gold'}S.g-=b.g;S.tonic={id:b.id,name:b.n[0],en:b.n[1],atk:b.atk,hp:b.hp,stages:b.stages,lastStage:null};sv();sfx('heal');return'ok'}
+function healerTick(){healerEnsure();const t=S.tonic;if(t){if(t.lastStage!=null&&t.lastStage!==stage){t.stages--;if(t.stages<=0)S.tonic=null}if(S.tonic)S.tonic.lastStage=stage}const a=S.ail;if(a.last!=null&&a.last!==stage){a.poison=Math.max(0,a.poison-1);a.burn=Math.max(0,a.burn-1)}a.last=stage}
+function healerApply(){healerEnsure();if(typeof hs==='undefined')return;if(S.ail.poison>0)hs.forEach(h=>{if(!h.dead)h.poison=6});if(S.ail.burn>0)hs.forEach(h=>{if(!h.dead)h.hp=Math.max(1,h.hp-h.mh*.12)})}
+function healerBuffSum(){let a=0,h=0;const m=S.buff;if(m&&m.stages>0){a+=Math.min(.10,m.atk||0);h+=Math.min(.10,m.hp||0)}const t=S.tonic;if(t&&t.stages>0){a+=t.atk||0;h+=t.hp||0}a=Math.min(.15,a);h=Math.min(.15,h);return{atk:a,hp:h,on:a>0||h>0}}
+function healerOpen(){healerEnsure();if(st==='world')wFrom=1;if(typeof lifeWorldQuick!='undefined')lifeWorldQuick=false;st='healer';sv()}
+function healerRows(){healerEnsure();const A=S.ail,c=[['poison',smithL('Sembuhkan Racun','Cure Poison'),A.poison>0],['burn',smithL('Sembuhkan Luka Bakar','Cure Burn'),A.burn>0]].map(r=>({k:r[0],t:r[1],d:r[2]?smithL('Sakit: ','Afflicted: ')+A[r[0]]+smithL(' stage',' stages'):smithL('Sehat','Healthy'),g:HEALER_CURE,ok:r[2]&&S.g>=HEALER_CURE}));return c.concat(HEALER_BUFFS.map(b=>({k:b.id,buff:1,t:smithL(b.n[0],b.n[1]),d:(b.atk?'ATK +'+Math.round(b.atk*100)+'% ':'')+(b.hp?'HP +'+Math.round(b.hp*100)+'% ':'')+'· '+b.stages+smithL(' stage',' stages'),g:b.g,ok:S.g>=b.g})))}
+function healerDraw(){const R=healerRows(),t=S.tonic;ov(.94);btn(6,5,76,28,'KEMBALI');T(smithL('TABIB DESA','VILLAGE HEALER'),95,25,'#fc4',17);
+T(smithL('Emas ','Gold ')+S.g+(t?'  ·  '+smithL('Aktif: ','Active: ')+smithL(t.name,t.en)+' '+t.stages:''),320,50,'#cde',10,'center');
+R.forEach((r,i)=>{const y=62+i*48;card(20,y,600,42,r.buff?'#f7c45c':'#7fc9ff',r.ok);T(r.t,32,y+17,'#fff',11);T(r.d+' · '+r.g+smithL(' emas',' gold'),32,y+33,'#9cf',9);btn(500,y+8,112,26,r.buff?smithL('BELI','BUY'):smithL('SEMBUHKAN','CURE'),r.ok)})}
+function healerClick(x,y){if(y<34&&x<85){goBack();return}healerRows().forEach((r,i)=>{const y0=62+i*48;if(x>=500&&x<=612&&y>=y0+8&&y<=y0+34){if(r.buff)healerBuy(r.k);else healerCure(r.k)}})}

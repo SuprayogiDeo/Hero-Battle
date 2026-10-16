@@ -28,6 +28,7 @@ run('Stage 9A: bridge, overlaps, focus panel, minimap', process.execPath, ['tool
 run('Stage 10A: polish (bridge, footprints, pens, mushrooms, resource respawn, fishing)', process.execPath, ['tools/test_polish_10a.js']);
 run('Fixes 9A-9D: park, farm gate, symmetric gate, door paths, bridge deck, mushrooms, building spacing, grove sign', process.execPath, ['tools/test_stage_9c.js']);
 run('Smith gear upgrade', process.execPath, ['tools/test_smith_upgrade.js']);
+run('Healer services', process.execPath, ['tools/test_healer_services.js']);
 run('Map data 10A: Village Hall path, east bridge road, b_res5 bush', process.execPath, ['tools/test_map_10a.js']);
 run('HUD regression (landscape): no visual overlaps, tap targets >= 44 px, text fits', process.execPath, ['tools/test_hud_regression.js']);
 run('World zoom (opt-in ?zoom=): camera, culling, restore-on-error, screen<->world conversion', process.execPath, ['tools/test_world_zoom.js']);
