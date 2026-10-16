@@ -58,7 +58,7 @@ const ART = ['tileset','kenney'].map(n => './assets/tiles/' + n + '.png')
 
 // Opsional: bila file tidak ada di hosting, instalasi tetap berhasil (dunia memakai warna polos sebagai cadangan).
 const ART_OPT = ['adv','plants'].map(n => './assets/tiles/' + n + '.png')
-  .concat(['avatar.png','props.png','nature.png','village.json','interior.png','interior.json','hud.png','hud.json'].map(n => './assets/world/' + n)); // Aset tambahan opsional Sunnyside World
+  .concat(['avatar.png','props.png','nature.png','village.json','interior.png','interior.json','hud.png','hud.json','boat.png'].map(n => './assets/world/' + n)); // Aset tambahan opsional Sunnyside World
 
 // Audio disimpan sejak awal supaya musik dan efek suara langsung jalan saat offline.
 // Dicoba satu per satu: bila ada file yang tidak ada, instalasi tetap berhasil.

@@ -23,7 +23,7 @@ const SOLID = { T: 1, '~': 1, S: 1, R: 1, G: 1, Q: 1, F: 1, X: 1 }, [x0, y0, x1,
 });
 assert.ok(/NPCV=\[\d+,\d+,\d+,\d+\]/.test(src) && src.includes('o.roam'), 'logika roam + batas desa NPCV ada');
 { const m = src.match(/NPCV=\[(\d+),(\d+),(\d+),(\d+)\]/).map(Number); NPCS.filter(o => o.roam).forEach(o => assert.ok(o.tx >= m[1] && o.tx <= m[3] && o.ty >= m[2] && o.ty <= m[4], o.id + ' mulai di luar batas desa')); }
-// lampu jendela simetris, jadwal jam 12/jam 2, 8 warga ambient (cermin terhadap lebar sprite)
+// lampu jendela simetris, jadwal jam 12/jam 2, 8 warga ambient, Nelayan + perahu (cermin terhadap lebar sprite)
 { ['b_res2', 'b_res3', 'b_res5'].forEach(n => { const r = I.spr[n], c = r.win.map(q => q[0] + q[2] / 2).sort((a, b) => a - b); assert.equal(c.length, 2, n); assert.ok(Math.abs((c[0] + c[1]) - r.w) <= 1, n + ' jendela tidak simetris'); }); }
 // jadwal harian: jam 12 NPC berkeliling, jam 2 pagi pulang (hilang dari jalan)
 { const vm = require('node:vm'); let H = 12;
@@ -44,7 +44,7 @@ assert.ok(/NPCV=\[\d+,\d+,\d+,\d+\]/.test(src) && src.includes('o.roam'), 'logik
   H = 8; run('npcUpdate(0.1)'); const m = at(smith()); assert.ok(Math.abs(m[0] - sx) < 1 && Math.abs(m[1] - sy) < 1, 'pagi NPC tidak muncul di rumah'); }
 // warga ambient: 8 orang, tile awal tidak solid, 1 baris sapaan 2 bahasa, dan tidak pernah menembus tile solid saat berjalan
 { const vm = require('node:vm'), amb = NPCS.filter(o => o.ambient);
-  assert.equal(amb.length, 8, 'harus ada 8 warga ambient');
+  assert.equal(amb.length, 8, 'harus ada 8 warga ambient, Nelayan + perahu');
   amb.forEach(o => { assert.ok(o.roam && o.sp > 0 && o.sp < 28, o.id + ' harus jalan pelan'); assert.ok(o.g && o.g.length >= 2 && o.g.every(l => l[0] && l[1]), o.id + ' sapaan 2 bahasa');
     const i = o.ty * W + o.tx; assert.ok(!SOLID[I.grid[o.ty][o.tx]] && col[i] === 0, o.id + ' mulai di tile solid'); });
   const wSolid = (px, py) => { const x = Math.floor(px / 16), y = Math.floor(py / 16); return !(x >= 0 && y >= 0 && x < W && y < I.h) || !!SOLID[I.grid[y][x]] || col[y * W + x] === 1; };
@@ -57,4 +57,39 @@ assert.ok(/NPCV=\[\d+,\d+,\d+,\d+\]/.test(src) && src.includes('o.roam'), 'logik
     arr.forEach(([id, x, y]) => { steps++; assert.ok(!(wSolid(x - 9, y - 8) || wSolid(x + 9, y - 8) || wSolid(x - 9, y) || wSolid(x + 9, y)), id + ' menembus tile solid di ' + x.toFixed(1) + ',' + y.toFixed(1)); }); }
   const moved = vm.runInContext('NPCS.filter(o=>o.ambient&&Math.hypot(o.px-(o.tx*16+8),o.py-(o.ty*16+26))>16).length', ctx);
   assert.ok(moved >= 4, 'warga ambient harus benar-benar berjalan (' + moved + '/8 bergeser)'); }
-console.log('PASS: NPC baru tidak solid, dekat Toko, roam dalam batas desa; jendela simetris, jadwal jam 12/jam 2, 8 warga ambient');
+// Nelayan + dermaga: jadwal per jam, waypoint perahu di air, perahu ikut culling/zoom
+{ const vm = require('node:vm'); let H = 7;
+  const draws = { n: 0 }, gm = new Proxy({}, { get: (_, k) => k === 'drawImage' ? () => { draws.n++; } : () => {}, set: () => true });
+  const ctx = { WS: 32, WW: W, WH: I.h, WMAP: I.grid, WFH: 9, WFV: 8, S: { world: { x: 4000, y: 4000 }, set: { lang: 'id' } }, wTalk: null, wDlg: 0, wNpc: null, best: 0, lifeHour: () => H, Anim: undefined, Math, performance,
+    wSolid: () => false, g: gm, OX: 0, VW: 640, IM: {}, HEROES: new Proxy({}, { get: () => ({ s: 'k', rar: 0 }) }), HID: new Proxy({}, { get: () => 'x' }), RC: ['#fff'], T() {}, spr() {}, t: 0, wL: (a, b) => a,
+    Image: function () { this.complete = true; this.naturalWidth = 48; }, Object };
+  vm.createContext(ctx); vm.runInContext(src, ctx);
+  const run = c => vm.runInContext(c, ctx), F = () => run("NPCS.find(o=>o.id=='fisher')"), tile = (x, y) => [Math.floor(x / 32), Math.floor(y / 32)], chAt = (x, y) => { const [a, b] = tile(x, y); return I.grid[b][a]; };
+  const fish = NPCS.find(o => o.id === 'fisher'); assert.ok(fish && fish.sched === 'fisher' && fish.boat && fish.n[0] && fish.n[1], 'Nelayan ada, dua bahasa');
+  assert.ok(!SOLID[I.grid[fish.ty][fish.tx]] && I.grid[fish.ty][fish.tx] === '+', 'Nelayan mulai di dermaga');
+  assert.ok(src.includes("o.id=='fisher'"), 'Nelayan punya cabang npcLines');
+  const BR = run('NPCBR'); BR.forEach(([x, y], i) => assert.equal(I.grid[Math.floor(y)][Math.floor(x)], '~', 'waypoint ' + i + ' bukan air'));
+  for (let i = 1; i < BR.length; i++) for (let k = 0; k <= 40; k++) { const x = (BR[i - 1][0] + (BR[i][0] - BR[i - 1][0]) * k / 40) * 32, y = (BR[i - 1][1] + (BR[i][1] - BR[i - 1][1]) * k / 40) * 32;
+    [[0, 0], [-18, 0], [18, 0]].forEach(([dx, dy]) => assert.equal(chAt(x + dx, y + dy) === '~' || chAt(x + dx, y + dy) === '+', true, 'segmen perahu ' + i + ' melewati tile solid')); }
+  // pagi (jam 7): memancing di ujung dermaga
+  H = 7; for (let i = 0; i < 300; i++) run('npcUpdate(0.1)'); assert.equal(F().st, 'fish', 'jam 7 harus memancing'); assert.deepEqual(tile(F().px, F().py), [30, 37]);
+  // siang (jam 12): menjahit jaring di dermaga
+  H = 12; for (let i = 0; i < 300; i++) run('npcUpdate(0.1)'); assert.equal(F().st, 'net', 'jam 12 harus memperbaiki jaring'); assert.deepEqual(tile(F().px, F().py), [31, 36]);
+  // sore (jam 17): naik perahu, berlayar, memancing di tengah, kembali
+  H = 17; const seen = new Set(); let aboardSteps = 0, fishWater = false;
+  for (let i = 0; i < 4000; i++) { run('npcUpdate(0.1)'); const o = F(); seen.add(o.st);
+    if (o.aboard) { aboardSteps++; assert.equal(chAt(o.bx, o.by), '~', 'perahu keluar dari air di ' + o.bx.toFixed(0) + ',' + o.by.toFixed(0)); if (['sail', 'back', 'cast'].includes(o.st)) assert.equal(o.px, o.bx); }
+    else if (o.st === 'board' || o.st === 'unboard') assert.ok(chAt(o.px, o.py) === '+' || chAt(o.px, o.py) === '~', 'naik/turun perahu keluar dermaga');
+    else assert.ok(chAt(o.px, o.py) === '+', 'nelayan di luar perahu harus di dermaga, st=' + o.st);
+    if (o.st === 'cast') fishWater = true; if (seen.has('rest') && seen.has('cast')) break; }
+  ['toboat', 'board', 'sail', 'cast', 'back', 'unboard', 'rest'].forEach(st => assert.ok(seen.has(st), 'tahap sore tidak tercapai: ' + st)); assert.ok(aboardSteps > 100 && fishWater, 'nelayan harus berlayar dan memancing');
+  assert.deepEqual(tile(F().bx, F().by), [33, 37], 'perahu kembali ke tambatan');
+  // menggambar: perahu ikut culling dan zoom, selalu di salah satu dari dua pass
+  const draw = (cx, pass) => { draws.n = 0; vm.runInContext('npcDraw(' + cx + ',0,0,' + pass + ')', ctx); return draws.n; };
+  const pv = F().by + 400; H = 2; run('npcUpdate(0.1)'); // malam: nelayan pulang, perahu tertambat tetap tergambar
+  const cam = F().bx - 300, drawn = () => (vm.runInContext('npcDraw(' + cam + ',' + (F().by - 800) + ',0)', ctx), 0);
+  let total = 0; [0, 1].forEach(pass => { draws.n = 0; vm.runInContext('npcDraw(' + cam + ',' + (F().by - 200) + ',' + (F().by + 50) + ',' + pass + ')', ctx); total += draws.n; });
+  assert.equal(total, 1, 'perahu harus tergambar tepat sekali (kamera dekat)');
+  total = 0; [0, 1].forEach(pass => { draws.n = 0; vm.runInContext('npcDraw(0,' + (F().by - 200) + ',' + (F().by + 50) + ',' + pass + ')', ctx); total += draws.n; }); assert.equal(total, 0, 'perahu di luar layar harus di-cull');
+  ctx.VW = 1280; ctx.OX = 0; total = 0; [0, 1].forEach(pass => { draws.n = 0; vm.runInContext('npcDraw(' + (F().bx - 1000) + ',' + (F().by - 200) + ',' + (F().by + 50) + ',' + pass + ')', ctx); total += draws.n; }); assert.equal(total, 1, 'zoom out: perahu harus ikut tergambar'); }
+console.log('PASS: NPC baru tidak solid, dekat Toko, roam dalam batas desa; jendela simetris, jadwal jam 12/jam 2, 8 warga ambient, Nelayan + perahu');

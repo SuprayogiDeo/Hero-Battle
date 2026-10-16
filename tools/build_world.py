@@ -34,12 +34,46 @@ def in_rect(x, y, r):
     return r['x'] <= x < r['x'] + r['w'] and r['y'] <= y < r['y'] + r['h']
 
 
+def patch_docks():
+    """Terapkan dermaga ('platform') baru dari world_design.json ke index.json + chunk yang SUDAH ada, tanpa membangun ulang
+    seluruh dunia (build penuh tidak idempoten karena skrip fix_* sesudahnya). Aman dijalankan berulang."""
+    design = json.loads(DESIGN.read_text(encoding='utf-8'))
+    idx_path = BASE / 'index.json'; idx = json.loads(idx_path.read_text(encoding='utf-8'))
+    W, H, C = idx['w'], idx['h'], idx['chunkSize']
+    have = {q.get('id') for q in idx['places']}
+    chunks = {}
+    def chunk(cx, cy):
+        key = (cx, cy)
+        if key not in chunks:
+            f = next(c['file'] for c in idx['chunks'] if c['x'] == cx and c['y'] == cy)
+            chunks[key] = (BASE / f, json.loads((BASE / f).read_text(encoding='utf-8')))
+        return chunks[key][1]
+    grid = [list(r) for r in idx['grid']]; added = []
+    for p in design.get('places', []):
+        if 'platform' not in p or p['id'] in have: continue
+        plat = p['platform']; x, y = int(p['x']), int(p['y']); left = x - plat['w'] // 2
+        for yy in range(y - 1, min(H, y - 1 + plat['h'])):
+            for xx in range(max(0, left), min(W, left + plat['w'])):
+                ch = chunk(xx // C, yy // C); i = (yy - ch['y']) * ch['w'] + (xx - ch['x'])
+                ch['layers']['ground'][i] = plat.get('tile', 50); ch['layers']['collision'][i] = 0
+                ch['layers']['decor'][i] = 0; ch['layers']['over'][i] = 0
+                ch['tags'] = [t for t in ch.get('tags', []) if t['i'] != i or t['tag'] != design.get('tags', {}).get('water', 'fishing_spot')]
+                grid[yy][xx] = '+'
+        idx['places'].append(p); added.append(p['id'])
+    for path, ch in chunks.values(): path.write_text(json.dumps(ch, separators=(',', ':')), encoding='utf-8')
+    idx['grid'] = [''.join(r) for r in grid]
+    idx_path.write_text(json.dumps(idx, separators=(',', ':')), encoding='utf-8')
+    print('Dermaga ditambahkan:', ', '.join(added) or '(tidak ada yang baru)')
+
+
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument('--patch-dock', action='store_true', help='hanya tambah dermaga baru ke dunia yang sudah dibangun')
     ap.add_argument('--width', type=int)
     ap.add_argument('--height', type=int)
     ap.add_argument('--chunk', type=int)
     args = ap.parse_args()
+    if args.patch_dock: return patch_docks()
     design = json.loads(DESIGN.read_text(encoding='utf-8'))
     BT = json.loads((BASE / 'bridge_tiles.json').read_text(encoding='utf-8'))['ids']
     src = json.loads((BASE / 'village.json').read_text(encoding='utf-8'))

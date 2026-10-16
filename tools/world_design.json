@@ -556,6 +556,19 @@
         4
       ],
       "unlockLevel": 5
+    },
+    {
+      "id": "village_dock",
+      "name": "Dermaga Desa",
+      "name_en": "Village Dock",
+      "type": "dock",
+      "x": 31,
+      "y": 37,
+      "platform": {
+        "w": 4,
+        "h": 2,
+        "tile": 50
+      }
     }
   ],
   "landmarks": [

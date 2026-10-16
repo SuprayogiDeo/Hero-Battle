@@ -33,6 +33,16 @@ const bushes = I.objects.filter(o => o.k === 'bush_c'); ok(bushes.length === 16,
 bushes.filter(o => Math.abs(o.x / 16 - 50) < 12 && Math.abs(o.y / 16 - 14) < 8).forEach(o => { const fx = Math.floor(o.x / 16), fy = Math.floor((o.y - 1) / 16);
   ok(Math.hypot(fx - dx, fy - dy) >= 3, 'bush_c ' + fx + ',' + fy + ' < 3 petak dari pintu ' + dx + ',' + dy); ok(ch(fx, fy) === 'X' && at('collision', fx, fy) === 1, 'sel padat bush_c hilang di ' + fx + ',' + fy); });
 ok(ch(50, 14) === '.' && at('collision', 50, 14) === 0, 'sel (50,14) bekas semak masih padat');
+// (iv) dermaga desa 4x2 (tools/build_world.py --patch-dock): kayu '+', bisa dilewati, tersambung ke jalan desa & sambung ke air, jalur dari spawn tidak putus
+{ const dock = I.places.find(p => p.id === 'village_dock'), dd = JSON.parse(fs.readFileSync(path.join(__dirname, 'world_design.json'), 'utf8')).places.find(p => p.id === 'village_dock');
+  ok(dock && dd && dd.platform.w === 4 && dd.platform.h === 2, 'village_dock 4x2 ada di index.json dan world_design.json');
+  const tiles = []; for (let y = 36; y <= 37; y++) for (let x = 29; x <= 32; x++) tiles.push([x, y]);
+  tiles.forEach(([x, y]) => ok(ch(x, y) === '+' && at('ground', x, y) === 50 && at('collision', x, y) === 0 && at('decor', x, y) === 0 && at('over', x, y) === 0, 'tile dermaga ' + x + ',' + y + ' tidak bisa dilewati'));
+  for (let x = 29; x <= 32; x++) { ok(ch(x, 35) === ',' && at('collision', x, 35) === 0, 'jalan desa menyentuh dermaga di ' + x + ',35'); ok(ch(x, 38) === '~', 'air di selatan dermaga ' + x + ',38'); }
+  ok(ch(33, 37) === '~', 'tambatan perahu (33,37) harus air');
+  const SOL = new Set('~TSRGQFX'.split('')), seen = new Set(), q = [[I.spawn[0], I.spawn[1]]]; seen.add(q[0].join(','));
+  while (q.length) { const [x, y] = q.pop(); [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dx, dy]) => { const a = x + dx, b = y + dy, k = a + ',' + b; if (a < 0 || b < 0 || a >= W || b >= H || seen.has(k) || SOL.has(ch(a, b)) || at('collision', a, b)) return; seen.add(k); q.push([a, b]); }); }
+  [[30, 37], [32, 37], [31, 36]].forEach(([x, y]) => ok(seen.has(x + ',' + y), 'BFS: dermaga ' + x + ',' + y + ' tidak terjangkau dari spawn')); }
 // (v) semua ID tile < 160 (tiles.png 5 baris x 32)
 ok(maxId < 160, 'ID tile terbesar ' + maxId + ' >= 160');
-console.log('PASS: data peta 10A — jalur Balai Desa (BFS) + bekas tangga, jalan timur jembatan 3 petak, semak b_res5, ID tile maks ' + maxId + ' < 160 (' + n + ' pemeriksaan)');
+console.log('PASS: data peta 10A — jalur Balai Desa (BFS) + bekas tangga, jalan timur jembatan 3 petak, semak b_res5, dermaga desa 4x2 (BFS dari spawn), ID tile maks ' + maxId + ' < 160 (' + n + ' pemeriksaan)');
