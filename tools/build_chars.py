@@ -7,7 +7,7 @@ Isi per prefix: <p>_idle, <p>_walk (samping, menghadap kanan; strip PNG paket) d
 <p>_idle_{s,se,ne,n}, <p>_walk_{s,se,ne,n} (pose arah dari .aseprite; kiri = flip di kode).
 Catatan: tag walk-* di .aseprite hanya punya `bowl hair`; rambut lain dipetakan dari pose idle-* arah yang sama
 (posisi = posisi bowl hair di frame jalan + selisih posisi rambut itu terhadap bowl hair di idle) -> kepala ikut bob.
-avatar_dig tetap dari build_assets.py. avatar_idle/avatar_walk DITIMPA di sini (kini dengan tangan jauh/tools)."""
+avatar_dig tetap dari build_assets.py. avatar_watering dirakit dari strip WATERING 5 frame. avatar_idle/avatar_walk DITIMPA di sini (kini dengan tangan jauh/tools)."""
 import json, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from PIL import Image
@@ -17,7 +17,7 @@ SRC, ASE = sys.argv[1], sys.argv[2]
 OUT = sys.argv[3] if len(sys.argv) > 3 else '.'
 WORLD = os.path.join(OUT, 'assets', 'world')
 FOOT = (48, 39)
-CHARS = {'avatar': 'short', 'npc_guard': 'spikey', 'npc_merchant': 'curly', 'npc_farmer': 'mop', 'npc_elder': 'long'}
+CHARS = {'avatar': 'short', 'npc_guard': 'spikey', 'npc_merchant': 'curly', 'npc_farmer': 'mop', 'npc_elder': 'long', 'npc_builder': 'short', 'npc_cook': 'curly', 'npc_woodcutter': 'mop'}
 FILE = {'bowl': 'bowlhair', 'short': 'shorthair', 'mop': 'mophair', 'spikey': 'spikeyhair', 'curly': 'curlyhair', 'long': 'longhair'}
 w, h, L, T, F = A.parse(ASE)
 N2I = {l['name']: i for i, l in enumerate(L)}
@@ -78,6 +78,22 @@ for p, hair in CHARS.items():
     for d in ('s', 'se', 'ne', 'n'):
         reg(f'{p}_idle_{d}', [dir_idle(d, k, hair) for k in range(4)], 200)
         reg(f'{p}_walk_{d}', [dir_walk(d, k, hair) for k in range(8)], 100)
+
+def action_frames(action, hair='short'):
+    # Compose action frames from the actual layer data; frame count comes from the Aseprite tag.
+    if action not in tag: raise ValueError('Missing Aseprite action tag: ' + action)
+    out=[]
+    for fi in range(tag[action][1], tag[action][2] + 1):
+        im=Image.new('RGBA',(96,64))
+        put(im,cel(fi,'base')); put(im,cel(fi,'tools rear')); put(im,cel(fi,NAME[hair])); put(im,cel(fi,'tools'))
+        out.append(im)
+    return out
+
+# Aseprite v1.0 tags: reeling=274..286 (13 frames), axe=185..194 (10), mining=195..204 (10).
+reg('avatar_watering', side('WATERING', 'watering', 5, 'short'), 85, 0)
+reg('avatar_reeling', action_frames('reeling','short'), 85, 1)
+reg('avatar_axe', action_frames('axe','short'), 85, 0)
+reg('avatar_mining', action_frames('mining','short'), 85, 0)
 size = sh.save(os.path.join(WORLD, 'chars.png'))
 ap = os.path.join(WORLD, 'atlas.json'); at = json.load(open(ap))
 at['anims'].update(new); at['sheets']['chars'] = 'chars.png'
