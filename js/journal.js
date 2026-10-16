@@ -52,7 +52,7 @@ function jrNpcList(){
     {id:'builder',n:JR_NPC_NAMES.builder},{id:'cook',n:JR_NPC_NAMES.cook},
     {id:'woodcutter',n:JR_NPC_NAMES.woodcutter}
   ];
-  if(typeof NPCS!=='undefined')NPCS.forEach(o=>{if(!base.some(n=>n.id===o.id))base.push({id:o.id,n:[o.n&&o.n[0]||o.id,o.n&&o.n[1]||o.id]});});
+  if(typeof NPCS!=='undefined')NPCS.forEach(o=>{if(!o.ambient&&!base.some(n=>n.id===o.id))base.push({id:o.id,n:[o.n&&o.n[0]||o.id,o.n&&o.n[1]||o.id]});});
   return base;
 }
 function jrTierRaw(points){let out=0;for(let i=1;i<JR_THRESHOLDS.length;i++)if(points>=JR_THRESHOLDS[i])out=i;return out;}
@@ -150,7 +150,7 @@ npcLines=function(o){const lines=jrBaseNpcLines(o);jrEnsure();const id=o&&o.id,t
 const jrBaseNpcStart=npcStart;
 npcStart=function(o){jrBaseNpcStart(o);if(wTalk&&wTalk.o===o)wTalk.jrNpcId=o.id;};
 const jrBaseNpcAdv=npcAdv;
-npcAdv=function(){const d=wTalk;jrBaseNpcAdv();if(d&&!wTalk){const id=d.jrNpcId||(d.o&&d.o.id);if(d.ls&&d.ls.jrStoryTier){const key=id+':'+d.ls.jrStoryTier;if(!S.journal.storySeen.includes(key))S.journal.storySeen.push(key);sv();}if(id)jrTalkFinish(id);}};
+npcAdv=function(){const d=wTalk;jrBaseNpcAdv();if(d&&!wTalk){const id=d.jrNpcId||(d.o&&d.o.id);if(d.ls&&d.ls.jrStoryTier){const key=id+':'+d.ls.jrStoryTier;if(!S.journal.storySeen.includes(key))S.journal.storySeen.push(key);sv();}if(id&&!(d.o&&d.o.ambient))jrTalkFinish(id);}};
 const jrBaseOrderDeliver=lifeOrderDeliver;
 lifeOrderDeliver=function(i){lifeEnsure();const order=lifeOrderList()[i],before=(S.orders&&S.orders.done||[]).slice();jrBaseOrderDeliver(i);if(order&&S.orders.done.includes(order.id)&&!before.includes(order.id))jrRelationshipGain(jrOrderRecipient(order),5,'order');};
 const jrBaseStoryDeliver=lifeStoryDeliver;

@@ -1,5 +1,5 @@
 /* NPC DUNIA 
- 7 NPC berdialog di dunia. Dimuat setelah farm.js. Semua hook di world.js dijaga (self.npcXxx&&...), jadi bila file ini
+ 15 NPC berdialog di dunia. Dimuat setelah farm.js. Semua hook di world.js dijaga (self.npcXxx&&...), jadi bila file ini
  tidak dimuat dunia tetap jalan tanpa NPC. Teks 2 bahasa langsung di kode lewat wL(id,en) (tanpa kamus i18n.js).
  roam:1 = NPC berkeliling ke seluruh desa (lompatan 3-10 tile, dalam batas NPCV); tanpa roam hanya sekitar rumah. Tambah NPC: tambah entri di NPCS (h = id hero untuk sprite, tx/ty = tile rumput kosong) dan satu cabang di npcLines(). */
 const NPCS=[
@@ -9,7 +9,16 @@ const NPCS=[
 {id:'elder',h:'oracle',tx:26,ty:12,n:['Tetua Desa','Village Elder']},
 {id:'smith',roam:1,h:'paladin',tx:23,ty:18,n:['Pandai Besi','Blacksmith']},
 {id:'healer',roam:1,h:'druid',tx:19,ty:17,n:['Tabib','Healer']},
-{id:'innkeeper',roam:1,h:'hunter',tx:21,ty:15,n:['Pemilik Penginapan','Innkeeper']}];
+{id:'innkeeper',roam:1,h:'hunter',tx:21,ty:15,n:['Pemilik Penginapan','Innkeeper']},
+/* warga ambient: tanpa fungsi, jalan pelan (sp), menyapa 1 baris acak dari g */
+{id:'kid',h:'recruit',tx:12,ty:14,roam:1,ambient:1,sp:15,n:['Anak','Kid'],g:[['Halo! Aku lagi main kejar-kejaran.','Hi! I am playing tag.'],['Kakak hero, kuat ya? Aku mau jadi kuat juga!','Hero, you must be strong! I want to be strong too!'],['Ssst, aku lihat ayam lari ke kebun tadi.','Shh, I saw a chicken run into the garden.']]},
+{id:'girl',h:'apprentice',tx:30,ty:15,roam:1,ambient:1,sp:15,n:['Gadis Kecil','Little Girl'],g:[['Aku sedang mengumpulkan bunga untuk nenek.','I am picking flowers for grandma.'],['Bunga di desa ini cantik-cantik, ya.','The flowers in this village are so pretty.'],['Hehe, kamu hero yang di cerita itu, ya?','Hehe, are you the hero from the stories?']]},
+{id:'granny',h:'acolyte',tx:40,ty:14,roam:1,ambient:1,sp:15,n:['Nenek','Granny'],g:[['Pelan-pelan saja jalannya, Nak. Desa ini tidak ke mana-mana.','Take it slow, dear. The village is not going anywhere.'],['Dulu desa ini sepi. Sekarang ramai, nenek senang.','This village used to be quiet. Now it is lively, and I am glad.'],['Sudah makan? Jangan bertarung dengan perut kosong.','Have you eaten? Never fight on an empty stomach.']]},
+{id:'grandpa',h:'monk',tx:52,ty:23,roam:1,ambient:1,sp:15,n:['Kakek','Grandpa'],g:[['Hmm, cuacanya enak untuk berjemur.','Hmm, nice weather for sunbathing.'],['Kakek dulu juga pernah muda dan gagah seperti kamu.','I was young and brave like you once.'],['Hati-hati di luar gerbang, ya.','Be careful beyond the gate.']]},
+{id:'youth',h:'squire',tx:28,ty:24,roam:1,ambient:1,sp:15,n:['Pemuda Desa','Village Youth'],g:[['Aku mau latihan pedang, tapi kayuku patah.','I want to practice swordplay, but my stick broke.'],['Suatu hari aku juga mau jadi hero!','One day I want to be a hero too!'],['Katanya Menara Harian berubah tiap hari. Seru!','They say the Daily Tower changes every day. Cool!']]},
+{id:'aunt',h:'ranger',tx:40,ty:23,roam:1,ambient:1,sp:15,n:['Bibi','Auntie'],g:[['Aduh, belanjaanku banyak sekali hari ini.','Oh my, I have so much shopping today.'],['Sayurnya segar-segar dari ladang desa.','The vegetables are fresh from the village field.'],['Mampir ke rumah kalau lewat, ya.','Drop by my house if you pass.']]},
+{id:'uncle',h:'spearman',tx:22,ty:32,roam:1,ambient:1,sp:15,n:['Paman','Uncle'],g:[['Jalan sore itu menyehatkan. Kamu juga coba.','An evening walk is healthy. You should try it.'],['Aku lagi mikir mau mancing atau tidur siang.','I am deciding between fishing and a nap.'],['Desa ini aman selama ada kamu.','The village is safe as long as you are here.']]},
+{id:'toddler',h:'hunter',tx:52,ty:14,roam:1,ambient:1,sp:15,n:['Anak Kecil','Little Kid'],g:[['Lihat, ada kupu-kupu!','Look, a butterfly!'],['Aku bisa lari cepat. Mau lomba?','I can run fast. Race me?'],['Ibu bilang jangan jauh-jauh dari rumah.','Mom said not to go far from home.']]}];
 const NB={R:['Barak','the Barracks'],F:['Ladang','the Field'],Q:['Papan Misi','the Quest Board']};
 /* posisi runtime (px,py) = rumah (tx,ty) + berkeliling pendek. wUseV() menimpa tx,ty -> npcSync mereset posisi. */
 function npcSync(o){const k=o.tx+','+o.ty;if(o._k!==k){o._k=k;o.px=o.tx*WS+WS/2;o.py=o.ty*WS+26;o.mode='wait';o.wt=1+Math.random()*3;o.vx=o.vy=0;o.gx=o.gy=0}}
@@ -25,12 +34,13 @@ if(talk||wDlg){o.mode='wait';o.wt=Math.max(o.wt,1.5)}
 else if(o.mode=='wait'){o.wt-=dt;if(o.wt<=0){if(near){o.wt=1}else{const a=Math.random()*7,rm=!!o.roam,r=rm?(3+Math.random()*7)*WS:(.4+Math.random()*.6)*NPCR,bx=rm?o.px:hx,by=rm?o.py:hy,gx=bx+Math.cos(a)*r,gy=by+Math.sin(a)*r*(rm?1:.7);let ok=npcOk(gx,gy)&&Math.hypot(gx-w.x,gy-w.y)>40&&(!rm||gx>=NPCV[0]*WS&&gx<=NPCV[2]*WS&&gy>=NPCV[1]*WS&&gy<=NPCV[3]*WS);
 const ns=Math.max(8,Math.ceil(Math.hypot(gx-o.px,gy-o.py)/6));for(let i=1;ok&&i<=ns;i++)ok=npcOk(o.px+(gx-o.px)*i/ns,o.py+(gy-o.py)*i/ns);if(ok){o.mode='go';o.gx=gx;o.gy=gy}else o.wt=.6}}}
 else{const dx=o.gx-o.px,dy=o.gy-o.py,l=Math.hypot(dx,dy);if(l<2||near&&Math.hypot(w.x-o.px,w.y-o.py)<40){o.mode='wait';o.wt=1.5+Math.random()*3.5}
-else{const sx=dx/l,sy=dy/l,nx=o.px+sx*NPCSP*dt,ny=o.py+sy*NPCSP*dt;
+else{const sx=dx/l,sy=dy/l,nx=o.px+sx*(o.sp||NPCSP)*dt,ny=o.py+sy*(o.sp||NPCSP)*dt;
 if(npcOk(nx,ny)&&!(Math.abs(nx-w.x)<19&&Math.abs(ny-w.y)<13)){o.px=nx;o.py=ny;vx=sx;vy=sy}else{o.mode='wait';o.wt=1+Math.random()*2}}}
 if(ac){ac.update(vx,vy);if(talk)ac.face(w.x-o.px,w.y-o.py)}})}
 function npcHit(x,y){for(const o of NPCS)if(npcAwake(o)&&Math.abs(x-npcX(o))<15&&Math.abs(y-npcY(o))<10)return true;return false}
 function npcNear(px,py){let b=null,bd=34;for(const o of NPCS){if(!npcAwake(o))continue;const d=Math.hypot(px-npcX(o),py-npcY(o));if(d<bd){bd=d;b=o}}return b}
 function npcLines(o){const b=best,r=[];
+if(o.ambient){const l=o.g[Math.floor(Math.random()*o.g.length)];return[wL(l[0],l[1])]}
 if(o.id=='guard'){r.push(wL('Halo, selamat datang. Gerbang ini menuju medan pertempuran.','Hi, welcome. This gate leads to the battlefield.'));
 r.push(b>0?wL('Rekormu stage '+b+'. Teruslah maju!','Your record is stage '+b+'. Keep going!'):wL('Belum pernah bertarung? Mulai dari Stage 1.','Not fought yet? Start from Stage 1.'));
 r.push(wL('Menara Harian juga lewat sini. Aturannya berganti tiap hari.','The Daily Tower is through here too. Its rules change every day.'))}

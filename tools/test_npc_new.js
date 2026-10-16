@@ -23,7 +23,7 @@ const SOLID = { T: 1, '~': 1, S: 1, R: 1, G: 1, Q: 1, F: 1, X: 1 }, [x0, y0, x1,
 });
 assert.ok(/NPCV=\[\d+,\d+,\d+,\d+\]/.test(src) && src.includes('o.roam'), 'logika roam + batas desa NPCV ada');
 { const m = src.match(/NPCV=\[(\d+),(\d+),(\d+),(\d+)\]/).map(Number); NPCS.filter(o => o.roam).forEach(o => assert.ok(o.tx >= m[1] && o.tx <= m[3] && o.ty >= m[2] && o.ty <= m[4], o.id + ' mulai di luar batas desa')); }
-// lampu jendela simetris, jadwal jam 12/jam 2 (cermin terhadap lebar sprite)
+// lampu jendela simetris, jadwal jam 12/jam 2, 8 warga ambient (cermin terhadap lebar sprite)
 { ['b_res2', 'b_res3', 'b_res5'].forEach(n => { const r = I.spr[n], c = r.win.map(q => q[0] + q[2] / 2).sort((a, b) => a - b); assert.equal(c.length, 2, n); assert.ok(Math.abs((c[0] + c[1]) - r.w) <= 1, n + ' jendela tidak simetris'); }); }
 // jadwal harian: jam 12 NPC berkeliling, jam 2 pagi pulang (hilang dari jalan)
 { const vm = require('node:vm'); let H = 12;
@@ -42,4 +42,19 @@ assert.ok(/NPCV=\[\d+,\d+,\d+,\d+\]/.test(src) && src.includes('o.roam'), 'logik
   assert.equal(run(`npcHit(${frozen[0]},${frozen[1]})`), false, 'jam 2 NPC masih menghalangi jalan');
   assert.equal(run(`npcNear(${frozen[0]},${frozen[1]})`), null, 'jam 2 NPC masih bisa diajak bicara');
   H = 8; run('npcUpdate(0.1)'); const m = at(smith()); assert.ok(Math.abs(m[0] - sx) < 1 && Math.abs(m[1] - sy) < 1, 'pagi NPC tidak muncul di rumah'); }
-console.log('PASS: NPC baru tidak solid, dekat Toko, roam dalam batas desa; jendela simetris, jadwal jam 12/jam 2');
+// warga ambient: 8 orang, tile awal tidak solid, 1 baris sapaan 2 bahasa, dan tidak pernah menembus tile solid saat berjalan
+{ const vm = require('node:vm'), amb = NPCS.filter(o => o.ambient);
+  assert.equal(amb.length, 8, 'harus ada 8 warga ambient');
+  amb.forEach(o => { assert.ok(o.roam && o.sp > 0 && o.sp < 28, o.id + ' harus jalan pelan'); assert.ok(o.g && o.g.length >= 2 && o.g.every(l => l[0] && l[1]), o.id + ' sapaan 2 bahasa');
+    const i = o.ty * W + o.tx; assert.ok(!SOLID[I.grid[o.ty][o.tx]] && col[i] === 0, o.id + ' mulai di tile solid'); });
+  const wSolid = (px, py) => { const x = Math.floor(px / 16), y = Math.floor(py / 16); return !(x >= 0 && y >= 0 && x < W && y < I.h) || !!SOLID[I.grid[y][x]] || col[y * W + x] === 1; };
+  const ctx = { WS: 16, WFH: 9, WFV: 8, S: { world: { x: 2000, y: 2000 }, set: { lang: 'id' } }, wTalk: null, wDlg: 0, wNpc: null, best: 0, wSolid, lifeHour: () => 12, Anim: undefined, Math, performance, wSn: false, wL: (a, b) => a };
+  vm.createContext(ctx); vm.runInContext(src, ctx);
+  amb.forEach(o => { const l = vm.runInContext("npcLines(NPCS.find(o=>o.id=='" + o.id + "'))", ctx); assert.equal(l.length, 1, o.id + ' menyapa tepat satu baris'); });
+  let steps = 0, far = 0;
+  for (let i = 0; i < 6000; i++) { vm.runInContext('npcUpdate(0.1)', ctx);
+    NPCS.forEach(() => 0); const arr = vm.runInContext('NPCS.filter(o=>o.ambient).map(o=>[o.id,o.px,o.py])', ctx);
+    arr.forEach(([id, x, y]) => { steps++; assert.ok(!(wSolid(x - 9, y - 8) || wSolid(x + 9, y - 8) || wSolid(x - 9, y) || wSolid(x + 9, y)), id + ' menembus tile solid di ' + x.toFixed(1) + ',' + y.toFixed(1)); }); }
+  const moved = vm.runInContext('NPCS.filter(o=>o.ambient&&Math.hypot(o.px-(o.tx*16+8),o.py-(o.ty*16+26))>16).length', ctx);
+  assert.ok(moved >= 4, 'warga ambient harus benar-benar berjalan (' + moved + '/8 bergeser)'); }
+console.log('PASS: NPC baru tidak solid, dekat Toko, roam dalam batas desa; jendela simetris, jadwal jam 12/jam 2, 8 warga ambient');
