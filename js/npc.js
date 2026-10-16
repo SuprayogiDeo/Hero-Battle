@@ -49,7 +49,7 @@ if(Math.abs(dx)>1)o.bf=dx>0?1:-1;
 if(l<=st){o.bx=p[0];o.by=p[1];o.wi=n;if(s=='sail'&&n==NPCBR.length-1){o.st='cast';o.ft=0}else if(s=='back'&&n==0)o.st='unboard'}
 else{const nx=o.bx+dx/l*st,ny=o.by+dy/l*st;if(npcWater(nx,ny)&&npcWater(nx-18,ny)&&npcWater(nx+18,ny)){o.bx=nx;o.by=ny}}
 o.px=o.bx;o.py=o.by-8;o.face=o.bf;o.walk=1}
-else if(s=='unboard'){const q=npcTP(32,37);if(npcMove(o,q[0],q[1],dt)){o.aboard=0;o.st='rest';o.ft=0}}
+else if(s=='unboard'){const q=npcTP(32,37);if(npcMove(o,q[0],q[1],dt)){o.aboard=0;o.st='rest';o.ft=0;if(typeof lifeShopFishAdd=='function')lifeShopFishAdd()}}
 else{o.ft+=dt;if(s=='cast'&&o.ft>=NPCCAST){o.st='back';o.wi=NPCBR.length-1}else if(s=='rest'&&o.ft>=8)o.st='board'}}
 /* joran + pelampung (siklus 7 dtk: ayun, lempar, mengambang+riak, tarik) dan jaring; digambar di atas sprite nelayan */
 function npcFisherFx(o,sx,sy){const s=o.st,f=o.face||1,tt=performance.now()/1000;
@@ -93,6 +93,10 @@ else if(o.id=='farmer'){if(b<WUN.F){r.push(wL('Ladangku belum bisa dipakai. Capa
 else{r.push(wL('Gemburkan tanahnya, tanam benih, lalu tinggalkan. Tanamannya tetap tumbuh saat kamu istirahat.','Loosen the soil, plant the seeds, then leave them. Crops keep growing while you rest.'));
 r.push(typeof farmReady=='function'&&farmReady()?wL('Eh, ada yang sudah matang. Yuk panen.','Oh, something is ripe. Come harvest.'):wL('Panen sepuasnya.','Harvest as much as you like.'))}}
 else if(o.id=='fisher'){r.push(wL('Selamat datang di dermaga kecil ini. Airnya tenang, ikannya jujur.','Welcome to this little dock. Calm water, honest fish.'));
+if(typeof lifeFisherQuest=='function'){const q=lifeFisherQuest(),fi=lifeFishById(q.id),nm=wL(fi.name,fi.en);
+if(q.done)r.push(wL('Terima kasih untuk '+nm+' tadi. Besok kuminta ikan lain.','Thanks for the '+nm+'. Tomorrow I will ask for another fish.'));
+else if(lifeFisherDeliver()=='ok')r.push(wL('Wah, '+nm+'! Ini '+LIFE_BAIT_REWARD+' umpan langka untukmu.','Wow, '+nm+'! Here are '+LIFE_BAIT_REWARD+' rare baits for you.'));
+else r.push(wL('Hari ini aku butuh 1 '+nm+'. Bawakan padaku, kuberi umpan langka.','Today I need 1 '+nm+'. Bring it to me and I will give rare bait.'))}
 r.push(o.act=='net'?wL('Jaring ini sobek kena karang. Harus selesai kujahit sebelum sore.','This net tore on the reef. I must mend it before evening.'):o.act=='boat'?wL('Sore begini aku berlayar ke tengah teluk. Ikan besar suka di sana.','This time of day I sail to the middle of the bay. The big fish like it there.'):wL('Pagi hari ikan paling mudah menggigit. Kuncinya sabar.','Fish bite best in the morning. Patience is the key.'));
 r.push(wL('Dermaga ini kami bangun bersama warga. Tidak besar, tapi cukup.','The villagers and I built this dock together. Not big, but enough.'))}
 else if(o.id=='smith'){r.push(wL('Palu dan landasan ini sudah kupakai puluhan tahun. Senjata bagus lahir dari kesabaran.','I have used this hammer and anvil for decades. Good weapons come from patience.'));

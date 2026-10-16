@@ -67,4 +67,29 @@ run('S.lifeClock=Date.now()+86400000*2; lifeEnsure();');
 const protectedDay=run('S.worldEarn.day');
 run('lifeEnsure();');
 assert.equal(run('S.worldEarn.day'),protectedDay,'daily reward epoch must follow the monotonic saved clock');
-console.log('PASS: fishing/cap/book, gather cooldown, recipes/buff cap, world income cap, village level, NPC orders, snow state.');
+// Nelayan: quest ikan harian -> umpan langka (dipakai saat menangkap), hasil berlayar -> stok Toko (tab IKAN), beli dari stok.
+run('lifeEnsure(); S.fish.stock={}; S.fish.bait=0; S.g=0; S.shopFish=null; S.fish.fq=null;');
+{ const q = run('lifeFisherQuest()'), f = run('LIFE_FISH.find(f=>f.id===lifeFisherQuest().id)');
+  assert.ok(f && f.rarity !== 'legendary', 'quest harian harus ikan dari LIFE_FISH (bukan legendaris)');
+  assert.equal(run('lifeFisherQuest().id'), q.id, 'ikan quest harus stabil dalam sehari');
+  assert.equal(run('lifeFisherDeliver()'), 'need', 'tanpa ikan quest tidak selesai'); assert.equal(run('S.fish.bait'), 0);
+  run('S.fish.stock[lifeFisherQuest().id]=1;'); assert.equal(run('lifeFisherDeliver()'), 'ok'); assert.equal(run('S.fish.bait'), run('LIFE_BAIT_REWARD'), 'hadiah umpan langka');
+  assert.equal(run('S.fish.stock[lifeFisherQuest().id]|0'), 0, 'ikan quest diambil Nelayan');
+  run('S.fish.stock[lifeFisherQuest().id]=1;'); assert.equal(run('lifeFisherDeliver()'), 'done', 'quest hanya sekali sehari'); assert.equal(run('S.fish.bait'), 2);
+  run("S.fish.fq.day='kemarin';"); assert.equal(run('lifeFisherQuest().done'), 0, 'quest ganti di hari baru'); }
+// umpan langka: dipakai 1 per tangkapan dan menaikkan peluang langka; tangkapan Nelayan tidak memakai umpan pemain
+run('S.fish.bait=2;'); run("lifeChooseFish({biome:'lake'});"); assert.equal(run('S.fish.bait'), 1, 'umpan terpakai 1');
+run("lifeChooseFish({biome:'coast',noBait:1});"); assert.equal(run('S.fish.bait'), 1, 'noBait tidak memakai umpan');
+{ let rare = 0, base = 0; run('lifeFishPool=()=>LIFE_FISH; S.fish.bait=1000000;'); for (let i = 0; i < 4000; i++) { const f = run("lifeChooseFish({biome:'coast'})"); if (f.rarity === 'rare' || f.rarity === 'legendary') rare++; }
+  run('S.fish.bait=0;'); for (let i = 0; i < 4000; i++) { const f = run("lifeChooseFish({biome:'coast'})"); if (f.rarity === 'rare' || f.rarity === 'legendary') base++; }
+  assert.ok(rare > base, 'umpan langka harus menaikkan peluang ikan langka (' + rare + ' vs ' + base + ')'); }
+// stok Toko: tambah setelah berlayar (batas harian), beli memindahkan ke stok pemain dan memotong emas
+run('S.shopFish=null; S.fish.stock={}; S.g=0;');
+for (let i = 0; i < 5; i++) run('lifeShopFishAdd()');
+assert.equal(run('lifeShopFish().intake'), 6, 'masuk stok Toko dibatasi 6 per hari');
+{ const total = run('Object.values(lifeShopFish().stock).reduce((a,b)=>a+b,0)'); assert.equal(total, 6); const id = run('lifeShopFishIds()[0]'), price = run('lifeShopFishPrice(lifeFishById("' + id + '"))');
+  assert.equal(run('lifeShopFishBuy("' + id + '")'), false, 'emas kurang: tidak bisa beli');
+  run('S.g=' + price + '+5;'); assert.equal(run('lifeShopFishBuy("' + id + '")'), true); assert.equal(run('S.g'), 5, 'emas dipotong'); assert.equal(run('S.fish.stock["' + id + '"]'), 1, 'ikan masuk stok pemain');
+  assert.equal(run('Object.values(lifeShopFish().stock).reduce((a,b)=>a+b,0)'), 5, 'stok Toko berkurang 1');
+  run("S.shopFish.day='kemarin';"); run('lifeShopFish()'); assert.equal(run('S.shopFish.intake'), 0, 'batas harian di-reset hari baru'); assert.equal(run('Object.values(S.shopFish.stock).reduce((a,b)=>a+b,0)'), 5, 'stok sisa tetap ada'); }
+console.log('PASS: fishing/cap/book, gather cooldown, recipes/buff cap, world income cap, village level, NPC orders, snow state, Nelayan quest/umpan langka/stok Toko.');

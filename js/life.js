@@ -81,7 +81,23 @@ function lifeFishingSpot(){lifeEnsure();if(st!=='world'||!S.world)return null;co
  return ans&&dist<=WS*4.2?ans:null;
 }
 function lifeFishPool(spot){const band=lifeTimeBand(),season=lifeSeason();let pool=LIFE_FISH.filter(f=>f.biomes.includes(spot.biome)&&(f.times.includes('any')||f.times.includes(band))&&f.seasons.includes(season));if(!pool.length)pool=LIFE_FISH.filter(f=>f.biomes.includes(spot.biome));if(!pool.length)pool=LIFE_FISH.filter(f=>f.biomes.includes('lake'));return pool}
-function lifeChooseFish(spot){const pool=lifeFishPool(spot);const weights={common:62,uncommon:27,rare:9,legendary:2};let total=pool.reduce((a,f)=>a+(weights[f.rarity]||1),0),v=Math.random()*total;for(const f of pool){v-=weights[f.rarity]||1;if(v<=0)return f;}return pool[pool.length-1]}
+function lifeChooseFish(spot){const pool=lifeFishPool(spot),bait=!(spot&&spot.noBait)&&S.fish&&(S.fish.bait|0)>0;const weights=bait?{common:20,uncommon:30,rare:40,legendary:10}:{common:62,uncommon:27,rare:9,legendary:2};if(bait){S.fish.bait--;say(lifeLang('Umpan Langka dipakai! Sisa '+S.fish.bait,'Rare Bait used! '+S.fish.bait+' left'))}let total=pool.reduce((a,f)=>a+(weights[f.rarity]||1),0),v=Math.random()*total;for(const f of pool){v-=weights[f.rarity]||1;if(v<=0)return f;}return pool[pool.length-1]}
+/* Nelayan (npc.js): quest ikan harian (bawakan ikan X dari LIFE_FISH) -> Umpan Langka (S.fish.bait, dipakai saat menangkap: peluang langka naik);
+   hasil berlayar Nelayan masuk stok Toko (S.shopFish, tab IKAN di layar Toko) dan bisa dibeli (2x harga jual ikan). */
+const LIFE_BAIT_REWARD=2,LIFE_SHOPFISH_CAP=6;
+function lifeFishById(id){return LIFE_FISH.find(f=>f.id===id)||null}
+function lifeFisherQuest(){lifeEnsure();const d=lifeDayKey();let q=S.fish.fq;if(!q||q.day!==d){let h=0;for(let i=0;i<d.length;i++)h=(h*31+d.charCodeAt(i)+7)>>>0;const pool=LIFE_FISH.filter(f=>f.rarity!=='legendary');q=S.fish.fq={day:d,id:pool[h%pool.length].id,done:0}}return q}
+function lifeFisherDeliver(){const q=lifeFisherQuest();if(q.done)return'done';if(!((S.fish.stock[q.id]|0)>0))return'need';S.fish.stock[q.id]--;q.done=1;S.fish.bait=(S.fish.bait|0)+LIFE_BAIT_REWARD;sv();say(lifeLang('+'+LIFE_BAIT_REWARD+' Umpan Langka','+'+LIFE_BAIT_REWARD+' Rare Bait'));return'ok'}
+function lifeShopFish(){lifeEnsure();const d=lifeDayKey();let s=S.shopFish;if(!s||typeof s!=='object')s=S.shopFish={day:d,intake:0,stock:{}};if(!s.stock||typeof s.stock!=='object')s.stock={};if(s.day!==d){s.day=d;s.intake=0}return s}
+function lifeShopFishAdd(){const s=lifeShopFish(),n=Math.max(0,Math.min(LIFE_SHOPFISH_CAP-(s.intake|0),2+(Math.random()<.5?1:0))),got=[];for(let i=0;i<n;i++){const f=lifeChooseFish({biome:'coast',noBait:1});s.stock[f.id]=Math.min(9,(s.stock[f.id]|0)+1);s.intake=(s.intake|0)+1;got.push(f.id)}if(got.length)sv();return got}
+const lifeShopFishPrice=f=>f.price*2;
+function lifeShopFishBuy(id){const s=lifeShopFish(),f=lifeFishById(id);if(!f||!((s.stock[id]|0)>0))return false;const p=lifeShopFishPrice(f);if(S.g<p){say(lifeLang('Emas tidak cukup.','Not enough gold.'));return false}S.g-=p;s.stock[id]--;if(!s.stock[id])delete s.stock[id];S.fish.stock[id]=(S.fish.stock[id]|0)+1;sv();sfx('coin');say(lifeLang('+1 '+f.name,'+1 '+f.en));return true}
+const lifeShopFishIds=()=>Object.keys(lifeShopFish().stock).filter(id=>lifeFishById(id)&&lifeShopFish().stock[id]>0).slice(0,6);
+function lifeShopFishDraw(){const s=lifeShopFish(),ids=lifeShopFishIds(),rar={common:'#d5e3eb',uncommon:'#67df91',rare:'#7fc9ff',legendary:'#f4c95d'};
+T(lifeLang('Hasil tangkapan Nelayan','Fisherman\'s catch'),320,92,'#9cf',11,'center');T(lifeLang('Umpan Langka: ','Rare Bait: ')+(S.fish.bait|0),320,108,'#f4c95d',10,'center');
+if(!ids.length){T(lifeLang('Stok kosong. Nelayan menambah stok setelah berlayar sore hari.','Empty. The Fisherman restocks after his evening voyage.'),320,200,'#cde',11,'center');return}
+ids.forEach((id,i)=>{const f=lifeFishById(id),y=120+i*36,p=lifeShopFishPrice(f),ok=S.g>=p;card(20,y,600,32,rar[f.rarity],ok);T(lifeLang(f.name,f.en)+'  x'+s.stock[id],34,y+20,'#fff',11);btn(500,y+3,112,26,lifeLang('BELI ','BUY ')+p,ok)})}
+function lifeShopFishClick(x,y){lifeShopFishIds().forEach((id,i)=>{const y0=120+i*36;if(x>=500&&x<=612&&y>=y0+3&&y<=y0+29)lifeShopFishBuy(id)})}
 function lifeStartFishing(spot){lifeEnsure();if(lifeFish&&lifeFish.active)return false;
  lifeFish={active:true,spot,phase:'waiting',elapsed:0,biteAt:1.6+Math.random()*2.3,deadline:0,fish:null};
  if(wAct){wAct.action=null;wAct.onDone=null;wAct.face((spot.x+.5)*WS-S.world.x,(spot.y+.5)*WS-S.world.y);wAct.state='idle';wAct.t0=performance.now();}

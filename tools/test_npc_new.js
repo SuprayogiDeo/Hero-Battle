@@ -62,7 +62,8 @@ assert.ok(/NPCV=\[\d+,\d+,\d+,\d+\]/.test(src) && src.includes('o.roam'), 'logik
   const draws = { n: 0 }, gm = new Proxy({}, { get: (_, k) => k === 'drawImage' ? () => { draws.n++; } : () => {}, set: () => true });
   const ctx = { WS: 32, WW: W, WH: I.h, WMAP: I.grid, WFH: 9, WFV: 8, S: { world: { x: 4000, y: 4000 }, set: { lang: 'id' } }, wTalk: null, wDlg: 0, wNpc: null, best: 0, lifeHour: () => H, Anim: undefined, Math, performance,
     wSolid: () => false, g: gm, OX: 0, VW: 640, IM: {}, HEROES: new Proxy({}, { get: () => ({ s: 'k', rar: 0 }) }), HID: new Proxy({}, { get: () => 'x' }), RC: ['#fff'], T() {}, spr() {}, t: 0, wL: (a, b) => a,
-    Image: function () { this.complete = true; this.naturalWidth = 48; }, Object };
+    Image: function () { this.complete = true; this.naturalWidth = 48; }, Object,
+    lifeShopFishAdd() { ctx.restocks = (ctx.restocks || 0) + 1; }, lifeFisherQuest: () => ({ id: 'carp', done: 0 }), lifeFishById: () => ({ name: 'Ikan Mas', en: 'Carp' }), lifeFisherDeliver: () => 'need', LIFE_BAIT_REWARD: 2 };
   vm.createContext(ctx); vm.runInContext(src, ctx);
   const run = c => vm.runInContext(c, ctx), F = () => run("NPCS.find(o=>o.id=='fisher')"), tile = (x, y) => [Math.floor(x / 32), Math.floor(y / 32)], chAt = (x, y) => { const [a, b] = tile(x, y); return I.grid[b][a]; };
   const fish = NPCS.find(o => o.id === 'fisher'); assert.ok(fish && fish.sched === 'fisher' && fish.boat && fish.n[0] && fish.n[1], 'Nelayan ada, dua bahasa');
@@ -84,6 +85,9 @@ assert.ok(/NPCV=\[\d+,\d+,\d+,\d+\]/.test(src) && src.includes('o.roam'), 'logik
     if (o.st === 'cast') fishWater = true; if (seen.has('rest') && seen.has('cast')) break; }
   ['toboat', 'board', 'sail', 'cast', 'back', 'unboard', 'rest'].forEach(st => assert.ok(seen.has(st), 'tahap sore tidak tercapai: ' + st)); assert.ok(aboardSteps > 100 && fishWater, 'nelayan harus berlayar dan memancing');
   assert.deepEqual(tile(F().bx, F().by), [33, 37], 'perahu kembali ke tambatan');
+  assert.equal(ctx.restocks, 1, 'stok Toko ditambah tepat sekali setelah Nelayan kembali berlayar');
+  assert.ok(run("npcLines(NPCS.find(o=>o.id=='fisher'))").some(l => /Ikan Mas/.test(l) && /umpan langka/.test(l)), 'dialog Nelayan menyebut quest ikan dan umpan langka');
+  { const rd = f => fs.readFileSync(path.join(root, 'js', f), 'utf8'); assert.ok(/'IKAN'\]/.test(rd('screens.js')) && rd('screens.js').includes('lifeShopFishDraw') && rd('input.js').includes('lifeShopFishClick') && rd('input.js').includes('[0,1,2,3,4]'), 'tab IKAN terpasang di layar Toko (screens.js + input.js)'); }
   // menggambar: perahu ikut culling dan zoom, selalu di salah satu dari dua pass
   const draw = (cx, pass) => { draws.n = 0; vm.runInContext('npcDraw(' + cx + ',0,0,' + pass + ')', ctx); return draws.n; };
   const pv = F().by + 400; H = 2; run('npcUpdate(0.1)'); // malam: nelayan pulang, perahu tertambat tetap tergambar
