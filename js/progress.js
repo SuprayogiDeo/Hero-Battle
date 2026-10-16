@@ -54,7 +54,7 @@ function howEnd(){st='menu'}
 function drawHow(){ov(.95);const h=HOW[howP],n=h[1].length;T(h[0],320,50,'#fc4',22,'center');h[1].forEach((k,i)=>{const cx=320+(i-(n-1)/2)*70;g.fillStyle='#2b2545';g.fillRect(cx-28,72,56,56);g.strokeStyle='#fc4';g.lineWidth=2;g.strokeRect(cx-28,72,56,56);hico(k[0],k[1],cx,100,3,1)});h[2].forEach((l,i)=>T(l,320,168+i*26,'#cde',12,'center'));T('Halaman '+(howP+1)+'/'+HOW.length,320,298,'#9ab',10,'center');btn(40,310,100,30,'<',0);btn(270,310,100,30,'LEWATI',0);btn(500,310,100,30,howP<HOW.length-1?'LANJUT':'TUTUP',1)}
 function howClick(x,y){if(y>310&&y<340){if(x>40&&x<140){if(howP>0){howP--;sfx('click')}}else if(x>270&&x<370){sfx('click');howEnd()}else if(x>500&&x<600){sfx('click');if(howP<HOW.length-1)howP++;else howEnd()}}}
 function mkItem(slot,rar){const nm=slot=='w'?WN:slot=='a'?AN:XN,it={u:S.iu++,slot,rar,ic:IC[slot][Math.random()*IC[slot].length|0],nm:nm[Math.random()*nm.length|0],lv:0};if(slot=='x')it.ty=Object.keys(XT)[Math.random()*4|0];return it}
-const iVal=it=>{const m=1+.1*it.lv;return it.slot=='w'?WB[it.rar]*m:it.slot=='a'?AB[it.rar]*m:XT[it.ty][1][RAR.indexOf(it.rar)]*m};
+const iVal=it=>{const m=1+.1*it.lv+.05*(it.fg|0);return it.slot=='w'?WB[it.rar]*m:it.slot=='a'?AB[it.rar]*m:XT[it.ty][1][RAR.indexOf(it.rar)]*m};
 const iName=it=>RP[it.rar]+' '+it.nm,iDesc=it=>it.slot=='w'?'ATK +'+iVal(it).toFixed(0)+'%':it.slot=='a'?'HP +'+iVal(it).toFixed(0)+'% · Damage masuk -'+Math.round(Math.min(.25,iVal(it)/440)*100)+'%':XT[it.ty][0]+' +'+iVal(it).toFixed(0)+'%';
 const iUp=it=>Math.round(40*(it.lv+1)**1.5*(1+RAR.indexOf(it.rar)*.8)),iSell=it=>Math.round(SELL[it.rar]*(1+it.lv*.6));
 const equippedBy=u=>Object.keys(S.eq).find(h=>{const e=S.eq[h];return e&&(e.w==u||e.a==u||e.x==u)});

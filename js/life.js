@@ -314,7 +314,7 @@ function lifeDrawOrders(){lifeEnsure();ov(.94);btn(6,5,76,28,'KEMBALI');btn(96,8
  lifeOrderList().forEach((o,i)=>{const y=80+i*55,done=S.orders.done.includes(o.id),has=lifeOrderCount(o.item)>=o.n;card(20,y,600,48,done?'#45484b':has?'#75b97a':'#57718a',1);T((S.set.lang==='en'?o.en:o.name)+' · '+(S.set.lang==='en'?(o.npcEn||'Villager'):(o.npc||'Warga')),32,y+18,done?'#888':'#fff',10);itemIcon(o.item,32,y+24,14);T(lifeLang('Serahkan '+o.n+' '+lifeItemName(o.item)+' · Hadiah '+o.gold+' emas','Deliver '+o.n+' '+lifeItemName(o.item)+' · Reward '+o.gold+' gold'),50,y+36,'#fc4',10);btn(500,y+8,100,31,done?'SELESAI':has?'SERAHKAN':'KURANG',has&&!done)});
  const q=LIFE_STORY[S.village.story];card(20,250,600,87,'#9d7b50',1);T('MISI CERITA: MEMBANGUN DESA DARI BATU PERTAMA',32,269,'#fc4',11);T(q?(S.set.lang==='en'?q.en:q.title):'Cerita selesai',32,287,'#fff',11);T(q?(S.set.lang==='en'?q.enDesc:q.desc):'Semua tahap sudah diselesaikan.',32,303,'#cde',9);T(lifeLang('Bahan: ','Materials: ')+(q?Object.keys(q.need).map(k=>lifeItemName(k)+' ×'+q.need[k]).join(', '):'—'),32,319,'#9cf',9);btn(476,282,124,38,'SERAHKAN',!!q);}
 function lifeOrderClick(x,y){if(y<34&&x<85){goBack();return}if(y<34&&x>=96&&x<206){qTab=0;return}if(y<34&&x>=212&&x<334){qTab=1;return}if(y>=80&&y<245){const i=Math.floor((y-80)/55);if(i>=0&&i<3&&x>490)lifeOrderDeliver(i);return}if(y>=278&&y<=326&&x>=470)lifeStoryDeliver();}
-function lifeInputState(x,y){if(st==='fishbook'){lifeFishBookClick(x,y);return true}if(st==='kitchen'){lifeKitchenClick(x,y);return true}if(st==='village'){lifeVillageClick(x,y);return true}return false}
+function lifeInputState(x,y){if(st==='smith'){smithClick(x,y);return true}if(st==='fishbook'){lifeFishBookClick(x,y);return true}if(st==='kitchen'){lifeKitchenClick(x,y);return true}if(st==='village'){lifeVillageClick(x,y);return true}return false}
 function lifeQuickClick(x,y){if(y<70||y>310){lifeWorldQuick=false;return}if(y>=72&&y<=99)lifeOpenFishBook();else if(y>=105&&y<=132)lifeOpenKitchen();else if(y>=138&&y<=165)lifeOpenVillage();else if(y>=171&&y<=198)lifeOpenOrders();else if(y>=204&&y<=231&&typeof lifeOpenStorage==='function')lifeOpenStorage();else if(y>=237&&y<=264&&typeof lifeOpenWorkshop==='function')lifeOpenWorkshop();else if(y>=270&&y<=297){lifeWorldQuick=false;worldLeave();}}
 function lifeInit(){lifeEnsure();lifeVillageSyncNPCs();}
 
@@ -332,7 +332,7 @@ updWorld=function(dt){if(lifeWorldQuick){lifeWorldUpdate(dt);return}_lifeUpdWorl
 const _lifeSnow=wSnow;
 wSnow=function(){return _lifeSnow()||lifeWeather()==='snow'};
 const _lifeDrawScreen=draw;
-draw=function(){_lifeDrawScreen();if(!['fishbook','kitchen','village'].includes(st))return;g.save();g.translate(OX,0);if(st==='fishbook')lifeDrawFishBook();else if(st==='kitchen')lifeDrawKitchen();else lifeDrawVillage();g.restore()};
+draw=function(){_lifeDrawScreen();if(!['fishbook','kitchen','village','smith'].includes(st))return;g.save();g.translate(OX,0);if(st==='smith')smithDraw();else if(st==='fishbook')lifeDrawFishBook();else if(st==='kitchen')lifeDrawKitchen();else lifeDrawVillage();g.restore()};
 const _lifeDrawQuests=drawQuests;
 drawQuests=function(){if(qTab===2){lifeDrawOrders();return}_lifeDrawQuests();btn(340,8,138,24,'PESANAN DESA',0)};
 const _lifeQuestClick=questClick;
@@ -342,7 +342,7 @@ drawMarket=function(){_lifeMarketDraw();btn(458,299,164,36,'DAPUR DESA',1);btn(4
 const _lifeMarketClick=marketClick;
 marketClick=function(x,y){if(x>=458&&x<=625&&y>=299&&y<=339){lifeOpenKitchen();return}if(x>=458&&x<=625&&y>=258&&y<=291){lifeOpenVillage();return}_lifeMarketClick(x,y)};
 // A capturing listener handles the additional screens before the legacy input handler.
-cv.addEventListener('pointerdown',function(ev){if(!['fishbook','kitchen','village'].includes(st))return;ev.stopImmediatePropagation();const r=cv.getBoundingClientRect(),x=(ev.clientX-r.left)*VW/r.width-OX,y=(ev.clientY-r.top)*360/r.height;lifeInputState(x,y);},{capture:true});
+cv.addEventListener('pointerdown',function(ev){if(!['fishbook','kitchen','village','smith'].includes(st))return;ev.stopImmediatePropagation();const r=cv.getBoundingClientRect(),x=(ev.clientX-r.left)*VW/r.width-OX,y=(ev.clientY-r.top)*360/r.height;lifeInputState(x,y);},{capture:true});
 const _lifeMkH=mkH;
 mkH=function(id){const h=_lifeMkH(id);if(S.buff&&S.buff.stages>0){h._lifeBase={mh:h.mh,lm:h.lm};h.mh*=1+Math.min(.10,S.buff.hp||0);h.hp=h.mh;h.lm*=1+Math.min(.10,S.buff.atk||0);}else h._lifeBase={mh:h.mh,lm:h.lm};return h};
 const _lifeStartStage=startStage;
@@ -350,7 +350,7 @@ startStage=function(){lifeBeforeStage();_lifeStartStage()};
 const _lifeFarmHarvest=farmHarvest;
 farmHarvest=function(i){lifeEnsure();const farm=S.farm,p=farm&&farm.p&&farm.p[i],kind=p&&FC[p.c]?['carrot','pumpkin','moonflower'][p.c]:null;const r=_lifeFarmHarvest(i);if(r&&kind){S.kitchen.food[kind]=(S.kitchen.food[kind]||0)+1;sv()}return r};
 const _lifeNpcStart=npcStart;
-npcStart=function(o){if(o&&o.id==='elder'){lifeOpenVillage();return}if(o&&o.id==='builder'){lifeOpenVillage();return}if(o&&o.id==='cook'){lifeOpenKitchen();return}_lifeNpcStart(o)};
+npcStart=function(o){if(o&&o.id==='elder'){lifeOpenVillage();return}if(o&&o.id==='builder'){lifeOpenVillage();return}if(o&&o.id==='cook'){lifeOpenKitchen();return}if(o&&o.id==='smith'){smithOpen();return}_lifeNpcStart(o)};
 lifeInit();
 
 addEventListener('keydown',function(e){if(st==='world'&&e.key==='Escape'&&lifeWorldQuick){lifeWorldQuick=false;wjid=null;wjx=wjy=0;e.preventDefault();}});

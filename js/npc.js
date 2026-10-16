@@ -126,3 +126,27 @@ g.save();g.translate(sx,sy);if(o.sched?o.face<0:w.x<npcX(o))g.scale(-1,1);if(ok)
 if(o.sched=='fisher')npcFisherFx(o,sx,sy);const ly=nw?46:40;if(nr)T(o.n[S.set.lang=='en'?1:0],sx,sy-ly,'#fc4',10,'center');else T('...',sx,sy-(nw?42:34)-bob,'#fff',10,'center')})}
 function npcUI(){const d=wTalk;if(!d)return;card(20,228,600,96,'#fc4',1);T(d.n,34,250,'#fc4',13);wr(d.ls[d.i],34,274,68,'#fff',11);
 T((d.i<d.ls.length-1?wL('KETUK: lanjut','TAP: next'):wL('KETUK: tutup','TAP: close'))+'  '+(d.i+1)+'/'+d.ls.length,606,316,'#9cf',9,'right')}
+
+/* TEMPA PANDAI BESI: level gear 'fg' (0..SMITH_MAX) tersimpan di item S.items (ikut save). Biaya = emas + bahan (tas dulu, lalu peti). */
+const SMITH_MAX=5,SMITH_ROWS=5;let smithPage=0;
+const smithMatName={stone:['Batu','Stone'],wood:['Kayu','Wood']};
+const smithL=(a,b)=>S.set&&S.set.lang==='en'?b:a;
+function smithCost(it){const n=(it.fg|0)+1,r=1+Math.max(0,RAR.indexOf(it.rar))*.5;return{g:Math.round(120*n*r),mats:{stone:2*n,wood:n}}}
+function smithMatHave(k){return(+(S.gather&&S.gather.items&&S.gather.items[k])||0)+(+(S.materialStorage&&S.materialStorage.items&&S.materialStorage.items[k])||0)}
+function smithTake(k,n){const a=S.gather.items,b=S.materialStorage.items,t=Math.min(n,Math.max(0,a[k]|0));a[k]=(a[k]|0)-t;b[k]=Math.max(0,(b[k]|0)-(n-t))}
+function smithUpgrade(it){if(typeof storagecraftEnsure=='function')storagecraftEnsure();if(!it)return'none';if((it.fg|0)>=SMITH_MAX)return'max';const c=smithCost(it);
+if(Object.keys(c.mats).some(k=>smithMatHave(k)<c.mats[k])){say(smithL('Bahan kurang.','Not enough materials.'));return'mat'}
+if(S.g<c.g){say(smithL('Emas tidak cukup','Not enough gold'));return'gold'}
+S.g-=c.g;Object.keys(c.mats).forEach(k=>smithTake(k,c.mats[k]));it.fg=(it.fg|0)+1;sv();sfx('heal');return'ok'}
+const smithItems=()=>(S.items||[]).slice().sort((a,b)=>(equippedBy(b.u)?1:0)-(equippedBy(a.u)?1:0)||RAR.indexOf(b.rar)-RAR.indexOf(a.rar));
+function smithOpen(){if(typeof storagecraftEnsure=='function')storagecraftEnsure();if(st==='world')wFrom=1;if(typeof lifeWorldQuick!='undefined')lifeWorldQuick=false;smithPage=0;st='smith';sv()}
+function smithDraw(){const L=smithItems(),mx=Math.max(0,Math.ceil(L.length/SMITH_ROWS)-1);smithPage=Math.min(smithPage,mx);ov(.94);btn(6,5,76,28,'KEMBALI');T(smithL('TEMPA PANDAI BESI','BLACKSMITH FORGE'),95,25,'#fc4',17);
+T(smithL('Emas ','Gold ')+S.g+'  ·  '+smithL('Batu ','Stone ')+smithMatHave('stone')+'  ·  '+smithL('Kayu ','Wood ')+smithMatHave('wood'),320,50,'#cde',10,'center');
+if(!L.length){T(smithL('Belum ada gear untuk ditempa.','No gear to forge yet.'),320,200,'#cde',11,'center');return}
+L.slice(smithPage*SMITH_ROWS,smithPage*SMITH_ROWS+SMITH_ROWS).forEach((it,i)=>{const y=62+i*48,c=smithCost(it),mx2=(it.fg|0)>=SMITH_MAX,ok=!mx2&&S.g>=c.g&&smithMatHave('stone')>=c.mats.stone&&smithMatHave('wood')>=c.mats.wood;card(20,y,600,42,'#d5e3eb',ok);
+T(iName(it)+' +'+(it.fg|0)+'/'+SMITH_MAX+(equippedBy(it.u)?' *':''),32,y+17,'#fff',11);T(mx2?smithL('Tempa maksimal','Max forged'):c.g+smithL(' emas · batu ',' gold · stone ')+c.mats.stone+smithL(' · kayu ',' · wood ')+c.mats.wood,32,y+33,'#9cf',9);
+btn(500,y+8,112,26,mx2?'MAKS':smithL('TEMPA','FORGE'),ok)});
+btn(20,310,90,26,'<',smithPage>0);T((smithPage+1)+'/'+(mx+1),320,328,'#cde',10,'center');btn(530,310,90,26,'>',smithPage<mx)}
+function smithClick(x,y){if(y<34&&x<85){goBack();return}const L=smithItems(),mx=Math.max(0,Math.ceil(L.length/SMITH_ROWS)-1);
+if(y>=310&&y<=336){if(x<=110&&smithPage>0)smithPage--;else if(x>=530&&smithPage<mx)smithPage++;return}
+L.slice(smithPage*SMITH_ROWS,smithPage*SMITH_ROWS+SMITH_ROWS).forEach((it,i)=>{const y0=62+i*48;if(x>=500&&x<=612&&y>=y0+8&&y<=y0+34)smithUpgrade(it)})}
