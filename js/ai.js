@@ -1,4 +1,4 @@
-/* ===== AI HERO CERDAS: menghindar, parry otomatis (healer/tank), healer prediktif ===== */
+/* AI HERO CERDAS: menghindar, parry otomatis (healer/tank), healer prediktif */
 let apT=0;
 const inTele=(k,x,y,pad)=>k.k=='row'?Math.abs(y-k.y)<k.r+pad:Math.hypot(x-k.x,y-k.y)<k.r+pad;
 const dgz=(k,h)=>{const r=k.rx||(k.rx={});return r[h.i]||(r[h.i]={ok:Math.random()<h.dg,at:rnd(h.rxr[0],h.rxr[1])})};
@@ -12,7 +12,7 @@ const dx=tx-h.x,dy=ty-h.y,l=Math.hypot(dx,dy);if(l<1.5)return false;const sp=Mat
 function stepH(h,tx,ty,spd,dt){const l=Math.hypot(tx-h.x,ty-h.y);if(l<.5)return;const nx=h.x+(tx-h.x)/l*spd*dt,ny=h.y+(ty-h.y)/l*spd*dt;if(h.dg!=null)for(const k of tele){if(k.dead)continue;if(dgz(k,h).ok&&inTele(k,nx,ny,2)&&!inTele(k,h.x,h.y,2))return}h.x=nx;h.y=ny}
 function healTarget(){let best=null,bs=0;for(const x of hs){if(x.dead)continue;const need=1-x.hp/x.mh,thr=tele.some(k=>!k.dead&&inTele(k,x.x,x.y,0)),sc=need+(thr?.35:0)+(x.d.role=='tank'?.1:0);if((need>.3||(thr&&need>.1))&&sc>bs){bs=sc;best=x}}return best}
 function autoParry(dt){apT=Math.max(0,apT-dt);if(apT>0||!tele.length)return;for(const k of tele){if(k.dead||k.t<.35||k.t>k.dur-.3)continue;if(!hs.some(x=>!x.dead&&inTele(k,x.x,x.y,0)))continue;const pr=k.pr||(k.pr={});for(const h of hs){if(h.dead||!h.rf||h.rfcd>0||h.stun>0||pr[h.i]||(MAN&&st=='fight'&&h===ctlH()))continue;pr[h.i]=1;if(Math.random()<h.rf){k.dead=1;h.rfcd=h.rcd;apT=3;RX(h.d.id).par++;ring(k.x,k.y,'#6f8',k.r);V('ln',h.x,h.y-14,{x2:k.x,y2:k.y,w:5,c:'#6f8',d:.3,sp:8});burst(k.x,k.y,12,'#6f8',120,.5,0,3);txt(k.x,k.y-20,'TANGKIS!','#6f8',1);sfx('parry');return}}}}
-/* ===== LIMIT BREAK: fase pengisian -> pelepasan khusus tiap hero ===== */
+/* LIMIT BREAK: fase pengisian -> pelepasan khusus tiap hero */
 function limit(h){h=h||ctlH();if(!h||h.dead||lb<100||st!='fight'||(ucut.t>0&&!ucut.fired))return;const d=h.d,k=d.sk;if(!es.some(e=>!e.dead)&&!['heal','revive','barrier','cry','wall'].includes(k))return;
 lb=0;lbLock=3.4;stat('ults');RX(d.id).ult++;const col=ultCol(d);freeze=.55;flash=Math.max(flash,.18);sfx('limit');h.glow=1.6;h.glowC=col;ucut={t:1.7,m:1.7,rel:.55,fired:0,d,h,c:col,n:ULTN[d.id]||d.skn}}
 function ultFire(h){if(!h||h.dead||st!='fight')return;const d=h.d,k=d.sk,col=ucut.c,L=es.filter(e=>!e.dead),u=UP[d.id]||{};if(!L.length&&!['heal','revive','barrier','cry','wall'].includes(k))return;
@@ -30,7 +30,7 @@ case'nova':for(let i=0;i<3;i++)after(i*.18,()=>{ring(h.x,h.y,col,220+i*60);burst
 case'snipe':{const e=tg;if(d.melee){burst(h.x,h.y-12,12,col,100,.5,0,3);h.x=e.x-32;h.y=e.y}ring(e.x,e.y,col,60);fx.push({k:'slash',x:e.x,y:e.y-16,c:'#fff',t:0,d:.4},{k:'slash',x:e.x+6,y:e.y-10,c:col,t:0,d:.4,f:1},{k:'pillar',x:e.x,y:e.y,t:0,d:.6});after(.25,()=>{if(!e.dead){hit(e,a*(u.mn||14),h,1);burst(e.x,e.y-14,30,[col,'#fff'],220,.7,60,4);sfx('explode')}});L.forEach(q=>{if(q!==e)after(.3,()=>{if(!q.dead)hit(q,a*(u.sp||3.5),h,0)})});sfx(d.melee?'sword':'arrow');break}
 case'chain':{const nb=Math.min(16,4+3*L.length);for(let i=0;i<nb;i++)after(.1+i*.1,()=>{const tl=es.filter(z=>!z.dead);if(!tl.length)return;const e=tl[Math.random()*tl.length|0];ps.push(mkP('bolt',e.x,-20,e,a*2.2,h,i%4==0,{dur:.15}));V('zap',e.x+rnd(-30,30),-10,{x2:e.x,y2:e.y-10,c:'#fff06a',d:.25,sd:i});if(i%3==0)sfx('magic')});break}
 case'cloud':sfx('poison');for(let i=0;i<3;i++)after(i*.2,()=>ring(h.x,h.y,col,240+i*50));L.forEach(e=>{e.psn=10;e.pd=14*um*h.lm;hit(e,a*3,h,0,1);burst(e.x,e.y-10,12,[col,'#7d3'],70,.9,-20,3)});break;
-case'cry':bf={t:10,m:1+Math.min(.9,.6*um)};hs.forEach(q=>{if(!q.dead){heal(q,q.mh*.25);q.shield=Math.max(q.shield,3);ring(q.x,q.y,col,80);burst(q.x,q.y-12,14,[col,'#fc4'],140,.7,0,3)}});ring(h.x,h.y,col,200);sfx('magic');break;
+case'cry':applyTimedBuff(1+Math.min(.9,.6*um),10);hs.forEach(q=>{if(!q.dead){heal(q,q.mh*.25);q.shield=Math.max(q.shield,3);ring(q.x,q.y,col,80);burst(q.x,q.y-12,14,[col,'#fc4'],140,.7,0,3)}});ring(h.x,h.y,col,200);sfx('magic');break;
 case'barrier':hs.forEach(q=>{if(!q.dead){q.shield=6;heal(q,q.mh*(u.hl||.35));ring(q.x,q.y,col,60);fx.push({k:'pillar',x:q.x,y:q.y,t:0,d:1})}});L.forEach(e=>hit(e,a*(u.dm||3.5),h,0,1));ring(h.x,h.y,col,230);burst(h.x,h.y-14,30,[col,'#fff'],220,.9,0,4);sfx('shield');sfx('heal');break;
 case'revive':hs.forEach(q=>{if(q.dead){q.dead=0;q.hp=q.mh*.6;q.fade=0;fx.push({k:'pillar',x:q.x,y:q.y,t:0,d:1.2});txt(q.x,q.y-40,'BANGKIT!','#6f8',1)}else heal(q,q.mh*.3);q.shield=Math.max(q.shield,3)});L.forEach(e=>hit(e,a*4,h,0,1));ring(h.x,h.y,col,230);sfx('heal');break;
 case'smite':{const e=tg;fx.push({k:'pillar',x:e.x,y:e.y,t:0,d:.9});ring(e.x,e.y,col,90);after(.25,()=>{if(!e.dead){hit(e,a*12,h,1,1);burst(e.x,e.y-14,30,[col,'#fff'],230,.8,60,4);sfx('explode')}});L.forEach(q=>{if(q!==e)after(.3,()=>{if(!q.dead)hit(q,a*2.5,h,0,1)})});hs.forEach(q=>{if(!q.dead)heal(q,q.mh*.35)});sfx('magic');break}
@@ -69,14 +69,46 @@ function ultBar(){const rd=lb>=100,c=ctlH(),d=c&&c.d,p=.5+.5*Math.sin(t*8);g.fil
 function ultCutDraw(){if(ucut.t<=0||!ucut.d)return;const u=ucut,el=u.m-u.t,al=Math.max(0,Math.min(1,el*9,u.t*3.5)),sl=Math.pow(Math.max(0,1-el*6),2);g.save();g.globalAlpha=al*.8;g.fillStyle='#000';g.fillRect(-OX,38,VW,52);g.globalAlpha=al;g.fillStyle=u.c;g.fillRect(-OX,36,VW,2);g.fillRect(-OX,90,VW,2);g.shadowColor=u.c;g.shadowBlur=16;spr(u.d.s,66-sl*180,98,4,0);g.shadowBlur=0;g.strokeStyle='#fc4';g.lineWidth=2;g.strokeRect(116+sl*300,48,32,32);g.fillStyle='rgba(0,0,0,.5)';g.fillRect(117+sl*300,49,30,30);hico(u.d.id,3,132+sl*300,64,2,1);T('LIMIT BREAK',162+sl*420,54,'#fc4',9);g.shadowColor=u.c;g.shadowBlur=10;T(u.n,162+sl*480,74,'#fff',19);g.shadowBlur=0;T(ULTH[u.d.id]||'',162+sl*560,87,u.c,9);g.restore()}
 function autoCast(){const f=es.filter(e=>e.x<430).length,av=hs.reduce((s,x)=>s+(x.dead?0:x.hp/x.mh),0)/Math.max(1,hs.filter(x=>!x.dead).length),boss=es.some(e=>e.d.boss);hs.forEach(h=>{if(h.dead||h.cd>0||(MAN&&h===ctlH()))return;const k=h.d.sk,n=es.filter(e=>Math.hypot(e.x-h.x,e.y-h.y)<110).length;
 const ok={wall:f>=3,whirl:n>=2,quake:n>=2,nova:n>=2,dash:f>0,snipe:f>0,smite:f>0,chain:f>=2,rain:f>=3,meteor:f>=3||boss,cloud:f>=3,cry:f>=2,barrier:av<.75||boss,heal:av<.6,revive:hs.some(x=>x.dead)||av<.5}[k];if(ok)cast(h)})}
-function clearStage(){stat('stages');const tw=mode=='tower',rw=!tw||stage>S.tw.best;if(mode=='main')best=Math.max(best,stage);hs.forEach(h=>{if(h.dead){h.dead=0;h.hp=h.mh*.3}else h.hp=Math.min(h.mh,h.hp+h.mh*BAL.heal);h.fade=0});ch=PK.slice().sort(()=>Math.random()-.5).slice(0,3);if(!rw){stageG=0;pendI=[];pendE=0}const gn=rw?stageG+stage*8+(tw?40+stage*12:0):0;S.g+=gn;runG+=gn;stageG=0;phase=0;if(stage==1)S.tut=1;if(rw&&(tw?stage%10==0:(Math.random()<.55||stage%5==0)))dropItem(stage%5==0?2:0);soldAuto={n:0,g:0};pendI.forEach(addItem);itemRes=pendI.slice();pendI=[];if(S.ad&&itemRes.length&&autoEquip())say('Auto pasang: gear baru dipakai');if(soldAuto.n)say('Gudang penuh: '+soldAuto.n+' item lemah dijual otomatis');essGot=rw?pendE+(tw?(stage%5==0?2:0):(stage%5==0?3:0)+(Math.random()<.2?1:0)):0;pendE=0;S.es+=essGot;if(tw&&rw){S.tw.best=stage;say('Lantai '+stage+': +'+gn+' emas'+(essGot?', +'+essGot+' Esensi':''));if(stage%10==0){S.ft++;say('Lantai '+stage+'! Tiket panggil gratis +1')}}sv();st='walk';wk=0;wend=0;sfx('clear');sfx('portal')}
+function clearStage(){
+  stat('stages');
+  const tw=mode==='tower';
+  const bossStage=mode==='main'&&stage%5===0;
+  const bossLedger=typeof ensureBossClaims==='function'?ensureBossClaims():(S.bossClaims||(S.bossClaims=[]));
+  const firstMain=mode==='main'&&!S.stageClaims.includes(stage)&&(!bossStage||!bossLedger.includes(stage));
+  const firstBoss=bossStage&&!bossLedger.includes(stage);
+  const rw=mode==='main'?firstMain:(!tw||stage>S.tw.best);
+  if(mode==='main'){
+    best=Math.max(best,stage);
+    if(firstMain)S.stageClaims.push(stage);
+    if(firstBoss)bossLedger.push(stage);
+  }
+  hs.forEach(h=>{if(h.dead){h.dead=0;h.hp=h.mh*.3}else h.hp=Math.min(h.mh,h.hp+h.mh*BAL.heal);h.fade=0});
+  ch=PK.slice().sort(()=>Math.random()-.5).slice(0,3);
+  if(!rw&&mode!=='main'){stageG=0;pendI=[];pendE=0}
+  const baseGold=stageG+stage*8+(tw?40+stage*12:0);
+  // Main-stage completion reward is full once; replay keeps 35% of stage gold and enemy loot.
+  const gn=mode==='main'?Math.max(0,Math.round((stageG+stage*8)*(firstMain?1:.35))):(rw?baseGold:0);
+  S.g+=gn;runG+=gn;stageG=0;phase=0;
+  if(stage==1)S.tut=1;
+  if(rw&&(tw?stage%10===0:(Math.random()<.55||stage%5===0)))dropItem(stage%5===0?2:0);
+  soldAuto={n:0,g:0};
+  pendI.forEach(addItem);itemRes=pendI.slice();pendI=[];
+  if(S.ad&&itemRes.length&&autoEquip())say('Auto pasang: gear baru dipakai');
+  if(soldAuto.n)say('Gudang penuh: '+soldAuto.n+' hadiah masuk penyimpanan aman, tidak dijual otomatis.');
+  const essBonus=tw?(stage%5===0?2:0):(stage%5===0?3:0)+(Math.random()<.2?1:0);
+  essGot=mode==='main'?pendE+(firstMain?essBonus:0):(rw?pendE+essBonus:0);
+  pendE=0;S.es+=essGot;
+  if(tw&&rw){S.tw.best=stage;say('Lantai '+stage+': +'+gn+' emas'+(essGot?', +'+essGot+' Esensi':''));if(stage%10===0){S.ft++;say((S.set&&S.set.lang==='en'?'Floor '+stage+'. Free summon ticket +1':'Lantai '+stage+'. Tiket panggil gratis +1'))}}
+  if(mode==='main')S.run={stage,P,R,runG,hs:hs.map(h=>({id:h.d.id,hp:h.hp,mh:h.mh})),cleared:true,defeated:false};
+  if(typeof hapticPulse==='function')hapticPulse(18);sv();st='walk';wk=0;wend=0;sfx('clear');sfx('portal')
+}
 function common(dt){fx.forEach(f=>{f.t+=dt;if(f.k=='fire'&&Math.random()<.7)pt.push({x:f.x+rnd(-f.r,f.r),y:f.y+rnd(-8,6),vx:0,vy:-rnd(30,70),l:.5,m:.5,c:['#f80','#fb3','#f40'][Math.random()*3|0],s:3,g:0})});fx=fx.filter(f=>f.t<f.d);tx.forEach(f=>{f.t+=dt;f.y-=24*dt});tx=tx.filter(f=>f.t<.9);pt.forEach(p=>{p.l-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=p.g*dt});pt=pt.filter(p=>p.l>0);cut.t-=dt;lbLock-=dt;hs.forEach(q=>{if(q.glow>0)q.glow-=dt});flash=Math.max(0,flash-dt*1.5);shake=Math.max(0,shake-dt);toast.t-=dt;bf.t-=dt;corps.forEach(c=>c.t+=dt);corps=corps.filter(c=>c.t<.45)}
 function upd(dt){if(mode=='boss'){wbT-=dt;if(wbT<=0){endBoss();return}}if(mode=='arena'){wbT-=dt;if(wbT<=0){endArena(0);return}}if(mode=='event'){wbT-=dt;if(wbT<=0){endEvent();return}}tutT+=dt;banner-=dt;ct-=dt;if(ct<=0)combo=0;tauntT=Math.max(0,tauntT-dt);sch.forEach(s=>s.t-=dt);const due=sch.filter(s=>s.t<=0);sch=sch.filter(s=>s.t>0);due.forEach(s=>s.fn());
 hs.forEach(h=>updH(h,dt));es.forEach(e=>updE(e,dt));ps.forEach(p=>updP(p,dt));
 autoParry(dt);tele.forEach(k=>{k.t+=dt;if(k.t>=k.dur){k.dead=1;ring(k.x,k.y,'#f33',k.r);burst(k.x,k.y,16,['#f44','#fa4'],160,.6,150,4);shake=.5;hs.forEach(h=>{if(k.k=='row'?Math.abs(h.y-k.y)<k.r:Math.hypot(h.x-k.x,h.y-k.y)<k.r){dmgH(h,k.a);if(k.stun)h.stun=k.stun;if(k.web)h.slow=3.5}});sfx('slam')}});
 es=es.filter(e=>!e.dead);ps=ps.filter(p=>!p.dead);tele=tele.filter(k=>!k.dead);
 if(focus&&focus.dead)focus=null;if(auto)autoCast();
-if(hs.every(h=>h.dead)){if(mode=='boss'){endBoss();return}if(mode=='arena'){endArena(0);return}if(mode=='event'){endEvent();return}if(mode=='tower'&&stage<=S.tw.best){pendI=[];pendE=0}const gn=(mode!='tower'||stage>S.tw.best)?stageG:0;S.g+=gn;runG+=gn;stageG=0;soldAuto={n:0,g:0};pendI.forEach(addItem);if(S.ad&&pendI.length)autoEquip();pendI=[];S.es+=pendE;pendE=0;st='over';resT=0;freeze=.5;shake=.5;sfx('hurt');if(mode=='main'){best=Math.max(best,stage);S.run=null}sv();return}
+if(hs.every(h=>h.dead)){if(mode=='boss'){endBoss();return}if(mode=='arena'){endArena(0);return}if(mode=='event'){endEvent();return}if(mode=='tower'&&stage<=S.tw.best){pendI=[];pendE=0}const gn=(mode!='tower'||stage>S.tw.best)?stageG:0;S.g+=gn;runG+=gn;stageG=0;soldAuto={n:0,g:0};pendI.forEach(addItem);if(S.ad&&pendI.length)autoEquip();pendI=[];S.es+=pendE;pendE=0;st='over';resT=0;freeze=.5;shake=.5;sfx('hurt');if(mode=='main'){S.run={stage,P,R,runG,hs:hs.map(h=>({id:h.d.id,hp:h.hp,mh:h.mh})),cleared:false,defeated:true}}sv();return}
 const nb=wi<waves.length&&ED[waves[wi][0]].boss,thr=nb||wi>=waves.length?0:Math.floor(wlast*BAL.ov);
 if(mode=='event')evTick(dt);else if(es.length<=thr&&!sch.length){wt-=dt;if(wt<=0){if(wi<waves.length){wlast=waves[wi].length;spawnWave(waves[wi++]);wt=.8}else if(mode=='arena')endArena(1);else clearStage()}}}
 function updWalk(dt){wk+=dt;bgx+=150*dt;let all=1;hs.forEach(h=>{if(h.x<585){h.x+=(170+h.i*6)*dt;h.y+=(250+(h.i-2)*10-h.y)*dt*2;all=0;if(Math.random()<.4)pt.push({x:h.x-8,y:h.y,vx:-30,vy:-10,l:.4,m:.4,c:'#887',s:3,g:0})}else{h.fade=Math.min(1,h.fade+dt*2.5);if(h.fade<1)all=0}});if(all){wend+=dt;if(wend>.5){flash=.8;if(mode=='tower'){stage++;startStage()}else st='perk'}}}

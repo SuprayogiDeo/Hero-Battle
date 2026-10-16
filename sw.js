@@ -1,5 +1,5 @@
 // Hero Battle service worker. Naikkan VERSION setiap kali Anda mengganti file game.
-const VERSION = 'v33';
+const VERSION = 'v73';
 const CACHE = 'hero-battle-' + VERSION;
 const SHELL = [
   './',
@@ -26,14 +26,30 @@ const SHELL = [
   './js/tilemap.js',
   './js/world.js',
   './js/farm.js',
+  './js/ranch.js',
   './js/npc.js',
   './js/i18n.js',
   './js/settings.js',
   './js/render.js',
   './js/screens.js',
+  './js/life.js',
+  './js/storagecraft.js',
+  './js/journal.js',
+  './js/adventure.js',
+  './js/interior.js',
+  './js/hud.js',
   './js/input.js',
   './js/pwa.js',
-  './js/boot.js'
+  './js/boot.js',
+  // Data dan atlas dunia diperlukan agar dunia chunk bisa dirender bahkan saat offline.
+  './assets/world/index.json',
+  './assets/world/atlas.json',
+  './assets/world/chars.png',
+  './assets/world/ui.png',
+  './assets/world/items.png',
+  './assets/world/tiles.png',
+  './assets/world/sprites.png',
+  './assets/world/sea.png'
 ];
 
 // Gambar sprite & tileset: wajib ada supaya game tampil, jadi ikut di-precache.
@@ -42,7 +58,7 @@ const ART = ['tileset','kenney'].map(n => './assets/tiles/' + n + '.png')
 
 // Opsional: bila file tidak ada di hosting, instalasi tetap berhasil (dunia memakai warna polos sebagai cadangan).
 const ART_OPT = ['adv','plants'].map(n => './assets/tiles/' + n + '.png')
-  .concat(['atlas.json','avatar.png','props.png','chars.png','village.json','index.json','tiles.png','sprites.png','sea.png'].map(n => './assets/world/' + n)); // Sunnyside World (anim.js; ada cadangan bila hilang)
+  .concat(['avatar.png','props.png','nature.png','village.json','interior.png','interior.json','hud.png','hud.json'].map(n => './assets/world/' + n)); // Aset tambahan opsional Sunnyside World
 
 // Audio disimpan sejak awal supaya musik dan efek suara langsung jalan saat offline.
 // Dicoba satu per satu: bila ada file yang tidak ada, instalasi tetap berhasil.
@@ -52,8 +68,10 @@ const AUDIO = ['arrow','arrowhit','fire','explode','sword','slash','spear','ice'
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE)
-      .then(c => c.addAll(SHELL.concat(ART).map(u => new Request(u, { cache: 'reload' }))).then(() => Promise.allSettled(ART_OPT.concat(AUDIO).map(u => c.add(new Request(u, { cache: 'reload' }))))
-        .then(() => fetch('./assets/world/index.json').then(r => r.ok ? r.json() : null).then(idx => idx && idx.chunks ? Promise.allSettled(idx.chunks.map(ch => c.add(new Request('./assets/world/' + ch.file, { cache: 'reload' })))) : []))))
+      .then(c => c.addAll(SHELL.concat(ART).map(u => new Request(u, { cache: 'reload' }))).then(() => Promise.allSettled(ART_OPT.concat(AUDIO).map(u => c.add(new Request(u, { cache: 'reload' })))))
+        .then(() => c.match('./assets/world/index.json'))
+        .then(r => { if (!r) throw new Error('World index missing from precache'); return r.json(); })
+        .then(idx => { if (!idx.chunks || !idx.chunks.length) throw new Error('World chunk list is empty'); return c.addAll(idx.chunks.map(ch => new Request('./assets/world/' + ch.file, { cache: 'reload' }))); }))
       .then(() => self.skipWaiting())
   );
 });

@@ -1,6 +1,8 @@
-/* ===== HERO DATA ===== */
+/* HERO DATA */
 const RB={tank:[300,14,30,.9,1],fighter:[220,18,28,.7,1],assassin:[150,17,26,.5,1],archer:[135,16,200,.7,0],mage:[115,22,180,1.15,0],healer:[145,10,170,1,0]},RM={N:1,R:1.2,SR:1.45,SSR:1.8},RC={N:'#aaa',R:'#6af',SR:'#c8f',SSR:'#fc4'},RN={tank:'Penjaga',fighter:'Petarung',assassin:'Pembunuh',archer:'Pemanah',mage:'Penyihir',healer:'Penyembuh'};
 const EC={fire:'#f80',ice:'#8cf',dark:'#a4f',poison:'#7d3',holy:'#fe8'};
+// PLACEHOLDER PEMILIK: angka pembuka alat belum dibalans; jangan dianggap nilai final.
+const HB_STARTER_TOOL_CONFIG={placeholder:true,unlockAt:{hand:0,hoe:5,can:5,axe:4,pick:4,rod:6}};
 function H(id,n,rar,role,ty,el,w,sk,skn,desc,cd,pw){const b=RB[role],m=RM[rar];return{id,n,rar,role,ty,el,w,sk,skn,desc,cd,pw,hp:b[0]*m,dm:b[1]*m,rng:b[2],it:b[3],melee:b[4],heal:role=='healer'?1:0,s:'h'+HEROES.length}}
 const HEROES=[];const A_=(...a)=>HEROES.push(H(...a));
 A_('recruit','Rekrut','N','fighter','melee',0,'sword','whirl','Putaran Pedang','Tebas semua musuh di sekitar',8,1);
@@ -63,10 +65,10 @@ const TIPS=['Tips: naikkan level hero dan skill di menu Pahlawan','Tips: pasang 
 const PRICE={N:250,R:700,SR:2000,SSR:6000},LVM={N:1,R:1.3,SR:1.7,SSR:2.2};
 let st='menu',stage=1,wi=0,waves=[],hs=[],es=[],ps=[],fx=[],tx=[],pt=[],sch=[],tele=[],auto=true,spdm=1,P={atk:1,cd:1,crit:.1,burn:1,ls:0,as:1},t=0,wt=1,focus=null,best=0,tauntT=0,tauntH=null,shake=0,ch=[],combo=0,ct=0,lb=0,runG=0,stageG=0,R={},phase=0,banner=0,freeze=0,flash=0,cut={t:0},bgx=0,wk=0,wend=0,bf={t:0,m:1},selH='recruit',shopTab=0,sumL=[],sumT=0,toast={t:0,s:''},pendI=[],gslot='w',gsel=null,gpage=0,corps=[],tutT=0,itemRes=[],pendE=0,essGot=0,wlast=0,mode='main',TM={},wbT=0,wbDmg=0,wbLast=0,evKills=0,evT=0,evSp=0,evBaseSt=3,evLast=0,arI=0,arW=[],arLast={};
 best=Save.readBest();
-let S={g:120,own:{recruit:{lv:1,st:1}},deck:['recruit'],sh:[0,0,0,0],day:'',pity:0,bday:'',bought:[],run:null,items:[],eq:{},iu:1,epity:0,fday:'',ft:1,fe:1,tut:0,diff:0,es:0,tw:{day:'',best:0},wb:{wk:-1,dmg:0,claimed:0,tries:0,tday:''},ar:{rt:0,tries:0,tday:'',cl:0,opp:[],w:0,l:0},ev:{wk:-1,score:0,claimed:0,tries:0,tday:'',base:0}};{const q=Save.readMain();if(q)S=Object.assign(S,q)}
-S.set=Object.assign({lang:'id',bgm:1,mv:7,sv:8,shake:1,dmg:1,fx:1,cs:1},S.set||{});if(S.ad==null)S.ad=1;
-S.st=S.st||{};S.ac=S.ac||{};S.q=S.q||{day:'',ids:[],p:{},cl:[0,0,0],bonus:0};if(S.coach==null)S.coach=S.tut?11:0;if(S.how==null)S.how=S.tut?1:0;
-const sv=()=>Save.writeMain(S,best);
+let S={g:120,own:{recruit:{lv:1,st:1}},deck:['recruit'],sh:[0,0,0,0],day:'',pity:0,bday:'',bought:[],run:null,hb:{sel:0,pg:0,water:0,slots:{}},items:[],overflowItems:[],stageClaims:[],bossClaims:[],eq:{},iu:1,epity:0,fday:'',ft:1,fe:1,tut:0,diff:0,es:0,tw:{day:'',best:0},wb:{wk:-1,dmg:0,claimed:0,tries:0,tday:''},ar:{rt:0,tries:0,tday:'',cl:0,opp:[],w:0,l:0},ev:{wk:-1,score:0,claimed:0,tries:0,tday:'',base:0},tutorials:{active:null,topics:{}}};{const q=Save.readMain();if(q)S=Object.assign(S,q)}
+S.set=Object.assign({lang:'id',bgm:1,mv:7,sv:8,shake:1,vib:1,dmg:1,fx:1,cs:1},S.set||{});if(!Array.isArray(S.items))S.items=[];if(!Array.isArray(S.stageClaims))S.stageClaims=[];if(!Array.isArray(S.overflowItems))S.overflowItems=[];function ensureBossClaims(){if(!Array.isArray(S.bossClaims))S.bossClaims=[];if(!S.bossClaims.length&&Array.isArray(S.stageClaims))S.bossClaims=S.stageClaims.filter(v=>Number(v)%5===0&&Number(v)>0).map(Number);return S.bossClaims}ensureBossClaims();S.set.lang=S.set.lang==='en'?'en':'id';['mv','sv'].forEach(k=>S.set[k]=Math.max(0,Math.min(10,Number.isFinite(+S.set[k])?+S.set[k]:8)));['bgm','shake','vib','dmg','fx'].forEach(k=>S.set[k]=S.set[k]?1:0);S.set.cs=Math.max(0,Math.min(2,Math.round(Number.isFinite(+S.set.cs)?+S.set.cs:1)));if(S.ad==null)S.ad=1;
+S.st=S.st||{};S.ac=S.ac||{};S.q=S.q||{day:'',ids:[],p:{},cl:[0,0,0],bonus:0};if(S.coach==null)S.coach=S.tut?11:0;if(S.how==null)S.how=S.tut?1:0;if(!S.tutorials||typeof S.tutorials!=='object'||Array.isArray(S.tutorials))S.tutorials={active:null,topics:{}};if(!S.tutorials.topics||typeof S.tutorials.topics!=='object'||Array.isArray(S.tutorials.topics))S.tutorials.topics={};
+const sv=()=>{const ok=Save.writeMain(S,best);if(!ok&&!Save.failureNotified){Save.failureNotified=true;say('Gagal menyimpan progres. Penyimpanan browser mungkin penuh atau diblokir.');}return ok};
 const today=()=>new Date().toDateString(),lvc=id=>Math.round(25*S.own[id].lv**1.6*LVM[HEROES[HID[id]].rar]),shc=i=>Math.round(40*(S.sh[i]+1)**1.5),A=()=>P.atk*(bf.t>0?bf.m:1);
 const mult=id=>(1+.12*(S.own[id].lv-1))*(1+.1*(S.own[id].st-1))*(1+.35*(S.own[id].evo||0));
 function say(s){toast={t:2,s}}
