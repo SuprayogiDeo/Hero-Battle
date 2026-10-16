@@ -1,27 +1,27 @@
 /* NPC DUNIA 
  7 NPC berdialog di dunia. Dimuat setelah farm.js. Semua hook di world.js dijaga (self.npcXxx&&...), jadi bila file ini
  tidak dimuat dunia tetap jalan tanpa NPC. Teks 2 bahasa langsung di kode lewat wL(id,en) (tanpa kamus i18n.js).
- Tambah NPC: tambah entri di NPCS (h = id hero untuk sprite, tx/ty = tile rumput kosong) dan satu cabang di npcLines(). */
+ roam:1 = NPC berkeliling ke seluruh desa (lompatan 3-10 tile, dalam batas NPCV); tanpa roam hanya sekitar rumah. Tambah NPC: tambah entri di NPCS (h = id hero untuk sprite, tx/ty = tile rumput kosong) dan satu cabang di npcLines(). */
 const NPCS=[
 {id:'guard',h:'knight',tx:22,ty:3,n:['Penjaga Gerbang','Gate Guard']},
 {id:'merchant',h:'cleric',tx:12,ty:9,n:['Pedagang','Merchant']},
 {id:'farmer',h:'clubber',tx:13,ty:22,n:['Petani','Farmer']},
 {id:'elder',h:'oracle',tx:26,ty:12,n:['Tetua Desa','Village Elder']},
-{id:'smith',h:'paladin',tx:23,ty:18,n:['Pandai Besi','Blacksmith']},
-{id:'healer',h:'druid',tx:19,ty:17,n:['Tabib','Healer']},
-{id:'innkeeper',h:'hunter',tx:21,ty:15,n:['Pemilik Penginapan','Innkeeper']}];
+{id:'smith',roam:1,h:'paladin',tx:23,ty:18,n:['Pandai Besi','Blacksmith']},
+{id:'healer',roam:1,h:'druid',tx:19,ty:17,n:['Tabib','Healer']},
+{id:'innkeeper',roam:1,h:'hunter',tx:21,ty:15,n:['Pemilik Penginapan','Innkeeper']}];
 const NB={R:['Barak','the Barracks'],F:['Ladang','the Field'],Q:['Papan Misi','the Quest Board']};
 /* posisi runtime (px,py) = rumah (tx,ty) + berkeliling pendek. wUseV() menimpa tx,ty -> npcSync mereset posisi. */
 function npcSync(o){const k=o.tx+','+o.ty;if(o._k!==k){o._k=k;o.px=o.tx*WS+WS/2;o.py=o.ty*WS+26;o.mode='wait';o.wt=1+Math.random()*3;o.vx=o.vy=0;o.gx=o.gy=0}}
 const npcX=o=>(npcSync(o),o.px),npcY=o=>(npcSync(o),o.py);
-const NPCR=WS*2,NPCSP=28;
+const NPCR=WS*2,NPCSP=28,NPCV=[3,5,60,42]; /* NPCV = batas desa (tile x0,y0,x1,y1) untuk NPC roam:1 */
 function npcAc(o){if(o.ac===undefined)o.ac=typeof Anim!='undefined'?new Anim.Actor('npc_'+o.id):null;return o.ac}
 const npcOk=(x,y)=>!(wSolid(x-WFH,y-WFV)||wSolid(x+WFH,y-WFV)||wSolid(x-WFH,y)||wSolid(x+WFH,y));
 function npcUpdate(dt){const w=S.world;if(!w)return;NPCS.forEach(o=>{npcSync(o);const ac=npcAc(o),hx=o.tx*WS+WS/2,hy=o.ty*WS+26;let vx=0,vy=0;
 const talk=wTalk&&wTalk.o===o,near=Math.abs(w.x-o.px)<44&&Math.abs(w.y-o.py)<34;
 if(talk||wDlg){o.mode='wait';o.wt=Math.max(o.wt,1.5)}
-else if(o.mode=='wait'){o.wt-=dt;if(o.wt<=0){if(near){o.wt=1}else{const a=Math.random()*7,r=(.4+Math.random()*.6)*NPCR,gx=hx+Math.cos(a)*r,gy=hy+Math.sin(a)*r*.7;let ok=npcOk(gx,gy)&&Math.hypot(gx-w.x,gy-w.y)>40;
-for(let i=1;ok&&i<=8;i++)ok=npcOk(o.px+(gx-o.px)*i/8,o.py+(gy-o.py)*i/8);if(ok){o.mode='go';o.gx=gx;o.gy=gy}else o.wt=.6}}}
+else if(o.mode=='wait'){o.wt-=dt;if(o.wt<=0){if(near){o.wt=1}else{const a=Math.random()*7,rm=!!o.roam,r=rm?(3+Math.random()*7)*WS:(.4+Math.random()*.6)*NPCR,bx=rm?o.px:hx,by=rm?o.py:hy,gx=bx+Math.cos(a)*r,gy=by+Math.sin(a)*r*(rm?1:.7);let ok=npcOk(gx,gy)&&Math.hypot(gx-w.x,gy-w.y)>40&&(!rm||gx>=NPCV[0]*WS&&gx<=NPCV[2]*WS&&gy>=NPCV[1]*WS&&gy<=NPCV[3]*WS);
+const ns=Math.max(8,Math.ceil(Math.hypot(gx-o.px,gy-o.py)/6));for(let i=1;ok&&i<=ns;i++)ok=npcOk(o.px+(gx-o.px)*i/ns,o.py+(gy-o.py)*i/ns);if(ok){o.mode='go';o.gx=gx;o.gy=gy}else o.wt=.6}}}
 else{const dx=o.gx-o.px,dy=o.gy-o.py,l=Math.hypot(dx,dy);if(l<2||near&&Math.hypot(w.x-o.px,w.y-o.py)<40){o.mode='wait';o.wt=1.5+Math.random()*3.5}
 else{const sx=dx/l,sy=dy/l,nx=o.px+sx*NPCSP*dt,ny=o.py+sy*NPCSP*dt;
 if(npcOk(nx,ny)&&!(Math.abs(nx-w.x)<19&&Math.abs(ny-w.y)<13)){o.px=nx;o.py=ny;vx=sx;vy=sy}else{o.mode='wait';o.wt=1+Math.random()*2}}}
