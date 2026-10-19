@@ -54,14 +54,12 @@ ok(!blocked(sp[0] * 32 + 16, sp[1] * 32 + 26), 'spawn tidak terblokir'); ok(bloc
 { const T = kinds('prop_traffic_light')[0]; ev(`wC.x=${T.x * 32 + 16};wC.y=${(T.y + 1) * 32 + 20};wjx=0;wjy=-1`); run(120); ev('wjy=0'); ok(ev('wC.y') > (T.y + 1) * 32 + 7, 'berjalan ke lampu lalu lintas tertahan (y=' + ev('wC.y') + ')'); }
 // jalan kota bisa dilalui sepanjang jalan horizontal dari spawn ke timur
 ev(`wC.x=${sp[0] * 32 + 16};wC.y=${ry * 32 + 26};wjx=1;wjy=0`); run(450); ev('wjx=0'); ok(ev('wC.x') > 22 * 32, 'jalan horizontal dapat dilalui melewati persimpangan (x=' + ev('wC.x') + ')');
-// rubah: statis, dialog sederhana via tombol aksi, memblokir jalan
+// 9B-36: rubah dan warga berjadwal pindah ke desa -> di kota tidak ada NPC (tanpa penghalang, tombol BICARA, atau gambar)
 const F = ev("(()=>{const o=NPCS.find(o=>o.id=='fox');return{tx:o.tx,ty:o.ty,area:o.area,st:o.static,n:o.n,awake:npcAwake(o)}})()");
-ok(F.area === 'city' && F.st === 1 && F.tx === fox[0] && F.ty === fox[1] && F.n[0] && F.n[1] && F.awake === true, 'rubah ada di NPCS (area city, statis, 2 bahasa) dan aktif di kota');
-ev(`wC.x=${fox[0] * 32 + 16};wC.y=${(fox[1] + 1) * 32 + 26};wjx=wjy=0`); run(2); ok(ev('hudCtx().l') === 'BICARA', 'dekat rubah => tombol BICARA');
-ok(blocked(fox[0] * 32 + 16, fox[1] * 32 + 26), 'rubah memblokir jalan');
-ev('wInteract()'); ok(ev('!!wTalk&&wTalk.o.id') === 'fox' || ev('wTalk.o.id') === 'fox', 'dialog rubah terbuka'); const lines = ev('wTalk.ls.length'); ok(lines >= 2 && ev('wTalk.ls.every(s=>s.length>10)'), 'dialog sederhana: ' + lines + ' baris');
-for (let i = 0; i < lines; i++) ev('wInteract()'); ok(ev('wTalk') === null, 'dialog tertutup setelah baris terakhir');
-{ const p0 = ev('[NPCS.find(o=>o.id=="fox").px,NPCS.find(o=>o.id=="fox").py].join()'); run(200); ok(ev('[NPCS.find(o=>o.id=="fox").px,NPCS.find(o=>o.id=="fox").py].join()') === p0, 'rubah tidak berpindah'); }
+ok(F.area === undefined && F.st === undefined && F.n[0] && F.n[1] && F.awake === false, 'rubah kini NPC desa (tanpa area, berjadwal dari pintu rumah, 2 bahasa) dan tidak aktif di kota');
+ok(ev("NPCS.every(o=>o.area!=='city')&&NPCS.filter(o=>npcAwake(o)).length===0"), 'tidak ada NPC aktif di kota');
+ev(`wC.x=${fox[0] * 32 + 16};wC.y=${(fox[1] + 1) * 32 + 26};wjx=wjy=0`); run(2); ok(ev('hudCtx()') === null || ev('hudCtx().l') !== 'BICARA', 'bekas tile rubah di kota: tidak ada tombol BICARA');
+ok(!blocked(fox[0] * 32 + 16, fox[1] * 32 + 26), 'bekas tile rubah di kota tidak memblokir jalan');
 // ketuk di kota tidak menanam/membuka layar desa; menggambar tidak error
 ev("S.set.lang='en';"); ok(ev('wL("a","b")') === 'b', 'bahasa EN'); ev("S.set.lang='id'"); ev('drawWorld()'); ev('lifeWorldQuick=false');
 // gerbang kembali: dekat ujung barat => tombol DESA, jalan masuk tiang tertutup, keluar ke desa
@@ -71,7 +69,7 @@ ev(`wC.x=${sp[0] * 32 + 16};wC.y=${sp[1] * 32 + 26}`); run(2); ok(ev('hudCtx()')
 ev(`wC.x=${(gate.tile[0] + 1) * 32};wC.y=${gate.tile[1] * 32 + 26}`); run(2); ev('wInteract()'); ok(ev('!!wFade'), 'fade keluar dimulai'); run(40);
 ok(ev('wC') === null, 'keluar dari kota'); ok(ev('S.world.x') === 124 * 32 + 16 && Math.floor(ev('S.world.y') / 32) === 23, 'mendarat di sisi dalam gerbang desa'); ok(dims() === dims0, 'WW/WH/WMAP desa tetap setelah keluar');
 ok(ev('hudCtx()') === null || ev('hudCtx().l') !== 'KOTA' || true, 'konteks desa pulih');
-ok(ev("NPCS.find(o=>o.id=='fox')&&npcAwake(NPCS.find(o=>o.id=='fox'))") === false && ev("NPCS.filter(o=>!o.area).every(o=>typeof npcAwake(o)==='boolean')"), 'di desa rubah tidak aktif; NPC desa tetap normal');
+ok(ev("typeof npcAwake(NPCS.find(o=>o.id=='fox'))")==='boolean' && ev("NPCS.every(o=>typeof npcAwake(o)==='boolean')"), 'di desa semua NPC (termasuk rubah) mengikuti jam desa');
 // worldEnter (kembali dari menu) membersihkan wC
 ev("S.world={x:126*32+16,y:23*32+24};wInteract()"); run(40); ok(ev('!!wC'), 'masuk lagi'); ev('worldEnter()'); ok(ev('wC') === null && ev('st') === 'world', 'worldEnter mereset keadaan kota');
 // tombol gerbang desa memuat malas bila data belum ada

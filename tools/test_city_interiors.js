@@ -49,7 +49,7 @@ CB.forEach(b => { for (let y = b.by; y < b.by + b.bh; y++) for (let x = b.bx; x 
   ok(b.dx >= b.bx && b.dx < b.bx + b.bw && !col[(b.by + b.bh) * Wc + b.dx] && !col[(b.by + b.bh + 1) * Wc + b.dx], b.id + ': tile pintu dan satu sel di bawahnya bebas'); });
 { const seen = new Set([C.spawn.join(',')]), q = [C.spawn.slice()]; while (q.length) { const [x, y] = q.pop(); [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dx, dy]) => { const a = x + dx, b = y + dy, k = a + ',' + b; if (a >= 0 && b >= 0 && a < C.w && b < C.h && !col[b * Wc + a] && !seen.has(k)) { seen.add(k); q.push([a, b]); } }); }
   CB.forEach(b => ok(seen.has(b.dx + ',' + (b.by + b.bh)), b.id + ': pintu terjangkau dari titik masuk kota'));
-  const npc = ev("NPCS.filter(o=>o.area==='city').flatMap(o=>o.plan?o.plan.map(p=>[p[2],p[3]]):[[o.tx,o.ty]])"); npc.forEach(([x, y]) => ok(!CB.some(b => x >= b.bx && x < b.bx + b.bw && y >= b.by && y < b.by + b.bh && true) && seen.has(x + ',' + y), 'tile NPC kota tetap bebas dan terjangkau ' + x + ',' + y)); }
+  const npc = ev("NPCS.filter(o=>o.area==='city').flatMap(o=>o.plan?o.plan.map(p=>[p[2],p[3]]):[[o.tx,o.ty]])"); ok(npc.length === 0, 'tidak ada NPC area city (9B-36: pindah ke desa)'); npc.forEach(([x, y]) => ok(!CB.some(b => x >= b.bx && x < b.bx + b.bw && y >= b.by && y < b.by + b.bh && true) && seen.has(x + ',' + y), 'tile NPC kota tetap bebas dan terjangkau ' + x + ',' + y)); }
 
 // 4) alur nyata: masuk kota -> pintu -> interior -> keluar kembali ke kota (tiap bangunan)
 (async () => {
@@ -78,7 +78,7 @@ CB.forEach(b => { for (let y = b.by; y < b.by + b.bh; y++) for (let x = b.bx; x 
     ok(ev('wI') === null && ev('!!wC'), b.id + ': keluar kembali ke kota');
     ok(Math.abs(ev('wC.x') - (b.dx * 32 + 16)) < 1 && Math.abs(ev('wC.y') - ((b.by + b.bh) * 32 + 26)) < 1, b.id + ': posisi kota dipulihkan di pintu');
     ok(ev('[S.world.x,S.world.y].join()') === sw0 && ev('hudCtx().l') === 'MASUK', b.id + ': S.world tetap, tombol MASUK muncul lagi');
-    ok(ev('cityD!==null&&NPCS.some(o=>o.area==="city"&&npcAwake(o))'), b.id + ': warga kota aktif lagi setelah keluar');
+    ok(ev('cityD!==null&&NPCS.every(o=>o.area!=="city")&&NPCS.filter(o=>npcAwake(o)).length===0'), b.id + ': kota tetap termuat dan tanpa NPC setelah keluar (9B-36: warga pindah ke desa)');
   }
   // keluar kota normal masih bekerja (gerbang barat) setelah keluar-masuk interior
   ev('wC.x=2*32;wC.y=cityRetY();wC.near=cityNear()'); ok(ev('hudCtx().l') === 'DESA', 'gerbang kembali ke desa tetap bekerja'); ev('hudCtx().f()'); run(10); ok(ev('wC') === null && ev('wI') === null, 'kembali ke desa');

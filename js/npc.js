@@ -20,17 +20,17 @@ const NPCS=[
 {id:'aunt',h:'ranger',tx:40,ty:23,roam:1,ambient:1,sp:15,n:['Bibi','Auntie'],g:[['Aduh, belanjaanku banyak sekali hari ini.','Oh my, I have so much shopping today.'],['Sayurnya segar-segar dari ladang desa.','The vegetables are fresh from the village field.'],['Mampir ke rumah kalau lewat, ya.','Drop by my house if you pass.']]},
 {id:'uncle',h:'spearman',tx:22,ty:32,roam:1,ambient:1,sp:15,n:['Paman','Uncle'],g:[['Jalan sore itu menyehatkan. Kamu juga coba.','An evening walk is healthy. You should try it.'],['Aku lagi mikir mau mancing atau tidur siang.','I am deciding between fishing and a nap.'],['Desa ini aman selama ada kamu.','The village is safe as long as you are here.']]},
 {id:'toddler',h:'hunter',tx:52,ty:14,roam:1,ambient:1,sp:15,n:['Anak Kecil','Little Kid'],g:[['Lihat, ada kupu-kupu!','Look, a butterfly!'],['Aku bisa lari cepat. Mau lomba?','I can run fast. Race me?'],['Ibu bilang jangan jauh-jauh dari rumah.','Mom said not to go far from home.']]},
-/* Kota Kecil (js/city.js): area:'city' = hanya ada di kota (tx,ty = tile PETA KOTA, bukan desa); static:1 = berdiri diam sepanjang hari. Digambar city.js dari atlas city_tiles. */
-{id:'fox',h:'ranger',area:'city',static:1,tx:25,ty:13,n:['Rubah Komuter','Commuter Fox']},
-/* Warga kota berjadwal (Batch 9B-27): plan = [jamMulai,jamSelesai,tileX,tileY] per blok (tile PETA KOTA); mi = karakter atlas mi_chars (LimeZu), h = hero cadangan saat ?mi=0.
-   say[i] = baris pembuka blok i, g = dialog umum. Berjalan antar blok lewat BFS (city.js cityNpcStep); di luar jam blok pertama..terakhir NPC pulang. */
-{id:'adam',h:'squire',mi:'adam',area:'city',tx:11,ty:13,sp:40,n:['Petugas Kota','City Officer'],plan:[[6,12,11,13],[12,20,27,15]],
+/* area:'city' = hanya ada di Kota Kecil (js/city.js; tx,ty = tile PETA KOTA); tanpa area = NPC desa. static:1 = berdiri diam sepanjang hari. home:[tx,ty] = tile depan pintu rumah (K3): NPC berjadwal keluar dari sana pagi hari dan berjalan pulang (memudar masuk pintu) saat jadwal habis, tidak pernah muncul/hilang mendadak; sch = jadwal tanpa dialog (rubah). Rubah Komuter kini NPC desa (Batch 9B-36), berdiri di blok K3. */
+{id:'fox',h:'ranger',tx:116,ty:13,sch:[[7,20,116,13]],home:[115,10],n:['Rubah Komuter','Commuter Fox']},
+/* Warga berjadwal (9B-27, pindah ke desa di 9B-36): plan = [jamMulai,jamSelesai,tileX,tileY] per blok (tile PETA DESA, sekitar kafe/toko/apartemen K3); tx,ty = tile blok pertama; mi = karakter atlas mi_chars (LimeZu), h = hero cadangan saat ?mi=0.
+   say[i] = baris pembuka blok i, g = dialog umum. Berjalan antar blok lurus lewat logika NPC desa (npcUpdate + npcOk, tanpa cityPath; garis antar tile wajib bebas); di luar jam blok pertama..terakhir NPC pulang. */
+{id:'adam',h:'squire',mi:'adam',tx:105,ty:11,home:[106,10],sp:40,n:['Petugas Kota','City Officer'],plan:[[6,12,105,11],[12,20,114,11]],
 say:[['Pagi. Aku berjaga di zebra cross barat supaya warga menyeberang dengan aman.','Morning. I watch the west crosswalk so people cross safely.'],['Siang begini aku pindah ke timur, dekat persimpangan yang ramai.','At this hour I move east, near the busy junction.']],
 g:[['Lampu lalu lintas itu baru dipasang. Tunggu hijau, ya.','Those traffic lights are brand new. Wait for green.'],['Kota ini kecil, tapi aturannya tetap sama dengan kota besar.','This city is small, but the rules are the same as in a big one.']]},
-{id:'alex',h:'monk',mi:'alex',area:'city',tx:9,ty:15,sp:40,n:['Pembaca Koran','Newspaper Reader'],plan:[[6,13,9,15],[13,20,27,13]],
+{id:'alex',h:'monk',mi:'alex',tx:113,ty:18,home:[110,17],sp:40,n:['Pembaca Koran','Newspaper Reader'],plan:[[6,13,113,18],[13,20,107,19]],
 say:[['Bangku barat ini paling enak buat baca koran pagi.','This west bench is the best for the morning paper.'],['Sore aku pindah ke bangku timur. Anginnya lebih sejuk di sini.','In the afternoon I move to the east bench. The breeze is cooler here.']],
 g:[['Berita hari ini: desa sebelah punya dermaga baru untuk para nelayan.','Today\'s news: the village next door has a new dock for its fishermen.'],['Koran ini terbit tiap hari, tapi beritanya jarang berubah.','This paper comes out daily, but the news rarely changes.']]},
-{id:'amelia',h:'apprentice',mi:'amelia',area:'city',tx:19,ty:3,sp:40,n:['Pelari Pagi','Morning Jogger'],plan:[[6,13,19,3],[13,20,19,25]],
+{id:'amelia',h:'apprentice',mi:'amelia',tx:102,ty:12,home:[115,10],sp:40,n:['Pelari Pagi','Morning Jogger'],plan:[[6.5,13,102,12],[13,20,118,12]],
 say:[['Aku sedang pemanasan di trotoar utara sebelum lari.','I am warming up on the north sidewalk before my run.'],['Sore aku berlari di trotoar selatan. Jalurnya lurus dan sepi.','In the afternoon I run on the south sidewalk. The path is straight and quiet.']],
 g:[['Lari itu murah dan menyehatkan. Kamu juga coba.','Running is cheap and healthy. You should try it.'],['Dari gerbang desa sampai sini kira-kira lima menit lari.','From the village gate to here is about five minutes at a run.']]}];
 const NB={R:['Barak','the Barracks'],F:['Ladang','the Field'],Q:['Papan Misi','the Quest Board']};
@@ -38,7 +38,7 @@ const NB={R:['Barak','the Barracks'],F:['Ladang','the Field'],Q:['Papan Misi','t
 function npcSync(o){const k=o.tx+','+o.ty;if(o._k!==k){o._k=k;o.px=o.tx*WS+WS/2;o.py=o.ty*WS+26;o.mode='wait';o.wt=1+Math.random()*3;o.vx=o.vy=0;o.gx=o.gy=0}}
 const npcX=o=>(npcSync(o),o.px),npcY=o=>(npcSync(o),o.py);
 /* Jadwal harian dari lifeHour() (life.js): jam NPCDAY[0]..NPCDAY[1]-1 NPC ada di desa; di luar itu pulang (tak tampil, tak menghalangi, tak bisa diajak bicara) dan paginya muncul lagi di rumah. */
-const NPCDAY=[6,20],npcHour=()=>typeof lifeHour=='function'?lifeHour():9,npcPlanBlock=(o,h)=>{let b=0;o.plan.forEach((p,i)=>{if(h>=p[0])b=i});return b},npcAwake=o=>{if((o.area||'')!==(typeof cityNpcArea=='function'?cityNpcArea():''))return false;if(o.plan){const h=npcHour();return h>=o.plan[0][0]&&h<o.plan[o.plan.length-1][1]}if(o.area)return true;const h=typeof lifeHour=='function'?lifeHour():9;return h>=NPCDAY[0]&&h<NPCDAY[1]};
+const NPCDAY=[6,20],npcHour=()=>typeof lifeHour=='function'?lifeHour():9,npcSch=o=>o.plan||o.sch,npcPlanBlock=(o,h)=>{let b=0;npcSch(o).forEach((p,i)=>{if(h>=p[0])b=i});return b},npcAwake=o=>{if((o.area||'')!==(typeof cityNpcArea=='function'?cityNpcArea():''))return false;{const sc=npcSch(o);if(sc){const h=npcHour();return o.out===1||(h>=sc[0][0]&&h<sc[sc.length-1][1])}}if(o.area)return true;const h=typeof lifeHour=='function'?lifeHour():9;return h>=NPCDAY[0]&&h<NPCDAY[1]};
 const NPCR=WS*2,NPCSP=28,NPCV=[3,5,60,42]; /* NPCV = batas desa (tile x0,y0,x1,y1) untuk NPC roam:1 */
 function npcAc(o){if(o.ac===undefined)o.ac=typeof Anim!='undefined'?new Anim.Actor('npc_'+o.id):null;return o.ac}
 const npcOk=(x,y)=>!(wSolid(x-WFH,y-WFV)||wSolid(x+WFH,y-WFV)||wSolid(x-WFH,y)||wSolid(x+WFH,y));
@@ -84,7 +84,18 @@ const nd=Math.sin(tt*7)*5;g.strokeStyle='#fff';g.lineWidth=2;g.beginPath();g.mov
 function npcBoatDraw(o,cx,cy,py,pass){if(o.bx===undefined)npcFisherHome(o);const rid=o.aboard&&npcAwake(o),ay=rid?o.py:o.by;if((pass==0)!=(ay<=py))return;
 const sx=o.bx-cx-OX,sy=o.by-cy;if(sx<-70-OX||sx>VW+70||sy<-40||sy>400||!NPCBT||!NPCBT.complete||!NPCBT.naturalWidth)return;
 const fr=Math.floor(performance.now()/450)%2,old=g.imageSmoothingEnabled;g.imageSmoothingEnabled=false;g.save();g.translate(sx,sy);if(o.bf<0)g.scale(-1,1);g.drawImage(NPCBT,fr*24,0,24,13,-24,-20,48,26);g.restore();g.imageSmoothingEnabled=old}
-function npcUpdate(dt){const w=S.world;if(!w)return;NPCS.forEach(o=>{if(!npcAwake(o)){o.gone=1;if(o.sched=='fisher')npcFisherHome(o);return}if(o.gone){o.gone=0;o._k=null}npcSync(o);if(o.static)return;if(o.sched=='fisher'){npcFisher(o,dt,wTalk&&wTalk.o===o);return}const ac=npcAc(o),hx=o.tx*WS+WS/2,hy=o.ty*WS+26;let vx=0,vy=0;
+/* NPC desa berjadwal (plan/sch + home, tanpa area): jam blok pertama tiba -> muncul memudar di pintu rumah (o.out=1) lalu jalan lurus ke tile blok (npcOk, berhenti dekat pemain/saat bicara);
+   jam habis -> jalan lurus pulang ke pintu, memudar, lalu hilang (o.out=0). Tanpa muncul/hilang mendadak. Macet > 4 dtk -> geser ke tile tujuan. o.fa = opasitas (0 di pintu .. 1 sejauh 1 tile). */
+function npcPlanStep(o,dt){const w=S.world,ac=npcAc(o),sc=npcSch(o),h=npcHour(),inWin=h>=sc[0][0]&&h<sc[sc.length-1][1],HX=o.home[0]*WS+WS/2,HY=o.home[1]*WS+26;let vx=0,vy=0;
+if(o.out!==1){o.out=1;o.ret=0;o.px=HX;o.py=HY;o.stk=0}
+o.ret=inWin?0:1;const t=sc[npcPlanBlock(o,h)],gx=o.ret?HX:t[2]*WS+WS/2,gy=o.ret?HY:t[3]*WS+26;
+const talk=wTalk&&wTalk.o===o,dx=gx-o.px,dy=gy-o.py,l=Math.hypot(dx,dy);
+if(!talk&&!wDlg&&l>1){const st=Math.min(l,(o.sp||NPCSP)*dt),sx=dx/l,sy=dy/l,nx=o.px+sx*st,ny=o.py+sy*st;
+if(npcOk(nx,ny)&&!(Math.abs(nx-w.x)<19&&Math.abs(ny-w.y)<13)){o.px=nx;o.py=ny;vx=sx;vy=sy;o.stk=0}else if((o.stk=(o.stk||0)+dt)>4){o.px=gx;o.py=gy;o.stk=0}}
+o.fa=Math.min(1,Math.hypot(o.px-HX,o.py-HY)/(WS*.9));
+if(o.ret&&Math.hypot(o.px-HX,o.py-HY)<2){o.out=0;o.ret=0;o.fa=0;return}
+if(ac){ac.update(vx,vy);if(talk)ac.face(w.x-o.px,w.y-o.py)}}
+function npcUpdate(dt){const w=S.world;if(!w)return;NPCS.forEach(o=>{if(!npcAwake(o)){o.gone=1;if(o.sched=='fisher')npcFisherHome(o);return}if(o.gone){o.gone=0;o._k=null}npcSync(o);if(o.home&&npcSch(o)){npcPlanStep(o,dt);return}if(o.static)return;if(o.sched=='fisher'){npcFisher(o,dt,wTalk&&wTalk.o===o);return}const ac=npcAc(o),hx=o.tx*WS+WS/2,hy=o.ty*WS+26;let vx=0,vy=0;
 const talk=wTalk&&wTalk.o===o,near=Math.abs(w.x-o.px)<44&&Math.abs(w.y-o.py)<34;
 if(talk||wDlg){o.mode='wait';o.wt=Math.max(o.wt,1.5)}
 else if(o.mode=='wait'){o.wt-=dt;if(o.wt<=0){if(near){o.wt=1}else{const a=Math.random()*7,rm=!!o.roam,r=rm?(3+Math.random()*7)*WS:(.4+Math.random()*.6)*NPCR,bx=rm?o.px:hx,by=rm?o.py:hy,gx=bx+Math.cos(a)*r,gy=by+Math.sin(a)*r*(rm?1:.7);let ok=npcOk(gx,gy)&&Math.hypot(gx-w.x,gy-w.y)>40&&(!rm||gx>=NPCV[0]*WS&&gx<=NPCV[2]*WS&&gy>=NPCV[1]*WS&&gy<=NPCV[3]*WS);
@@ -135,13 +146,13 @@ return r}
 function npcStart(o){wjid=null;wjx=wjy=0;wTalk={n:o.n[S.set.lang=='en'?1:0],ls:npcLines(o),i:0,o:o};const ac=npcAc(o);if(ac)ac.face(S.world.x-npcX(o),S.world.y-npcY(o));sfx('click')}
 function npcAdv(){const d=wTalk;if(!d)return;sfx('click');if(d.i<d.ls.length-1)d.i++;else wTalk=null}
 function npcDraw(cx,cy,py,pass){const w=S.world;NPCS.forEach((o,k)=>{if(o.boat)npcBoatDraw(o,cx,cy,py,pass);if(!npcAwake(o))return;const fy=npcY(o),back=fy<=py;if((pass==0)!=back)return;
-const sx=npcX(o)-cx-OX,sy=fy-cy;if(sx<-40-OX||sx>VW+40||sy<-40||sy>400)return;
+const sx=npcX(o)-cx-OX,sy=fy-cy;if(sx<-40-OX||sx>VW+40||sy<-40||sy>400)return;const ga=g.globalAlpha;if(o.fa!==undefined&&o.fa<1)g.globalAlpha=ga*Math.max(0,o.fa);
 const ac=npcAc(o),nw=ac&&Anim.has('npc_'+o.id+'_'+ac.state);let bob=0;const nr=wNpc===o;
 if(nw){Anim.shadow(g,sx,sy-1,9,3,.3);ac.draw(g,sx,sy,performance.now(),WZ)}
 else{const d=HEROES[HID[o.h]],im=IM[d.s],ok=im&&im.complete&&im.naturalWidth>0;bob=Math.abs(Math.sin(t*2+k*1.7))*(o.walk?2.5:1.5);
 g.fillStyle='rgba(0,0,0,.35)';g.beginPath();g.ellipse(sx,sy-1,10,4,0,0,7);g.fill();
 g.save();g.translate(sx,sy);if(o.sched?o.face<0:w.x<npcX(o))g.scale(-1,1);if(ok)spr(d.s,0,0,2,-bob);else{g.fillStyle=RC[d.rar];g.fillRect(-8,-30-bob,16,28)}g.restore()}
-if(o.sched=='fisher')npcFisherFx(o,sx,sy);const ly=nw?46:40;if(nr)T(o.n[S.set.lang=='en'?1:0],sx,sy-ly,'#fc4',10,'center');else T('...',sx,sy-(nw?42:34)-bob,'#fff',10,'center')})}
+if(o.sched=='fisher')npcFisherFx(o,sx,sy);const ly=nw?46:40;if(nr)T(o.n[S.set.lang=='en'?1:0],sx,sy-ly,'#fc4',10,'center');else T('...',sx,sy-(nw?42:34)-bob,'#fff',10,'center');g.globalAlpha=ga})}
 function npcUI(){const d=wTalk;if(!d)return;card(20,228,600,96,'#fc4',1);T(d.n,34,250,'#fc4',13);wr(d.ls[d.i],34,274,68,'#fff',11);
 T((d.i<d.ls.length-1?wL('KETUK: lanjut','TAP: next'):wL('KETUK: tutup','TAP: close'))+'  '+(d.i+1)+'/'+d.ls.length,606,316,'#9cf',9,'right')}
 
