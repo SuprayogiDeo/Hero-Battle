@@ -1,0 +1,60 @@
+Hero Battle - Credits
+
+Art: "Sunnyside World" asset pack by Daniel Diggle (https://danieldiggle.itch.io/sunnyside).
+Used under the pack's license: modification allowed; resale, repackaging and use for
+training AI are NOT allowed. Files derived from it live in assets/world/ (avatar.png,
+props.png, atlas.json) and are produced by tools/build_assets.py (cropped / recombined only).
+Tahap 6A: assets/world/chars.png (avatar + 4 NPC, pose samping dan arah) dibuat tools/build_chars.py dari strip karakter dan file
+.aseprite paket yang sama (hanya digabung/dipotong; posisi rambut pada pose jalan arah dipetakan dari pose idle).
+
+Tahap 6D: crop memakai frame crop_* di assets/world/atlas.json/props.png (sumber Sunnyside, tahap _00 sampai _05);
+slot petak awal dibuat tools/build_farm.py. Tahap 8D mengganti lahan runtime menjadi 24 petak rumput di assets/world/index.json dan village.json, tanpa memotong data save lama.
+
+Tahap 6C: jendela/pintu pada assets/world/village.json (spr.*.win/.door) dideteksi dari sprites.png (turunan paket yang sama) oleh tools/build_lights.py;
+efek cahaya/tint digambar lewat kode (tanpa aset baru).
+
+Tahap 5B: assets/world/tiles.png, sprites.png, sea.png dan village.json diturunkan dari tileset dan contoh scene (Room1) paket yang sama
+(dipotong/digabung saja) lewat tools/build_village.py.
+
+Tahap 8A: rumah eksterior dari Houses_Sprite_Sheet.png (sumber pengguna, penggunaan pribadi); furnitur kecil dari "Tiny Wonder Farm Free";
+ikon bahan rak dari "99 ingredients"; ikon alat HUD dari UI Sunnyside World. Atlas dibuat tools/build_interiors.py (dipotong/digabung);
+properti lain (kasir, mesin gacha, tungku, rak, dll.) digambar prosedural oleh skrip yang sama. Konfirmasi lisensi publikasi tetap diperlukan sebelum rilis publik.
+
+Tahap 8C: `assets/world/items.png` adalah atlas runtime 9 ikon bahan 16×16; ikon herb, mushroom, dan tonic diambil sebagai pilihan dari 99 Ingredients (https://keifoopx.itch.io/99-various-ingredients), sedangkan simbol kayu/batu/buah/produk sederhana dihasilkan oleh `tools/build_inventory_icons.py`. Ikon alat tetap memakai atlas HUD turunan Sunnyside. Tidak ada arsip ZIP atau sumber PSD/Aseprite yang dimasukkan ke repo. Tinjau syarat distribusi setiap sumber sebelum proyek dipublikasikan.
+
+Tahap 8D+8E: `assets/world/chars.png` dan atlas diperbarui lewat `tools/build_chars.py`; avatar_watering berasal dari strip WATERING 5 frame. Avatar REELING 13 frame, AXE 10 frame, dan MINING 10 frame berasal dari pipeline animasi Aseprite Sunnyside/unggahan Human v1.0 terpisah. Catatan sumber/ketentuan file Aseprite terpisah tetap perlu dikonfirmasi sebelum distribusi publik. Crop world memakai enam tahap `crop_carrot/pumpkin/sunflower_0..5` dari tahap sumber `_00.._05`. Angka waktu gigitan/respawn bertanda PLACEHOLDER. Tidak ada ZIP pack atau Aseprite dimasukkan ke repo.
+
+
+Tahap 8F+8G: metadata jendela malam diterapkan ke sprite rumah dari asset sheet rumah yang diunggah pemilik; papan tanda memakai sprite `sign` Sunnyside yang sudah tersedia. Gapura/palung digambar prosedural oleh `js/tilemap.js`. Lima papan biome dan dua gapura ditentukan lewat `tools/world_design.json`; tidak ada aset pack mentah atau aset eksternal baru yang dimasukkan.
+
+Tahap 9B-19 (ikon ikan): `assets/world/fish_icons.png` + `fish_icons.json` adalah atlas runtime 11 sel 16x16 (10 ikan LIFE_FISH + siluet `unknown`) yang dipotong
+oleh `tools/build_fish_icons.py` dari `fishing_icons_sheet_16x16.png` milik paket "Fishing Icon Pack" oleh Hollow Dolphin. Hanya dipotong dan digabung; siluet
+`unknown` adalah turunan bentuk satu ikon yang diberi warna rata. Arsip paket tidak dimasukkan ke repo. Berkas lisensi/ketentuan tidak ada di arsip yang diterima,
+jadi syarat penggunaan dan distribusinya belum terkonfirmasi: tinjau halaman sumber paket sebelum rilis publik (gerbang aset yang sama dengan sumber lain).
+
+Tahap 9B-23 (Cute Fantasy): `assets/world/cf_atlas.png` + `cf_atlas.json` adalah atlas 19 PNG dari paket "Cute Fantasy (Free)" oleh Kenmi (folder Tiles, Outdoor decoration, Animals),
+digabung saja oleh `tools/build_cf_tiles.py`. LISENSI VERSI GRATIS: hanya untuk proyek NON-KOMERSIAL; modifikasi boleh; redistribusi atau penjualan DILARANG, juga untuk hasil modifikasi.
+Karena itu repo ini harus tetap privat dan atlas ini tidak boleh dipublikasikan atau dipakai pada rilis komersial tanpa membeli/menyetujui lisensi penuh. Atlas belum dipakai peta atau tileset desa; paket mentah tidak dimasukkan ke repo.
+
+Batch 9B-25 (atlas kota): `assets/world/city/city_tiles.png` + `city_tiles.json` (16 tile 16x16, 3 prop jalan, sprite rubah) dipotong dan diperkecil (nearest-neighbour)
+oleh `tools/build_city_tiles.py` dari "Modern City Top-Down Pack - Free Sampler" oleh The Venice Menace Baking Co. (https://venicemenacebakingco.itch.io/modern-city-topdown-pack).
+Lisensi CC0 (boleh komersial, atribusi tidak wajib; tetap dicatat di sini). PENGUNGKAPAN AI: pengarang menyatakan seni paket ini dihasilkan dengan bantuan AI dan dikurasi manual;
+Hero Battle hanya memotong, memberi latar transparan, dan memperkecilnya. Paket ZIP mentah tidak dimasukkan ke repo. Atlas dipakai peta Kota Kecil (Batch 9B-26, `assets/world/city/city.json`; tata letak peta dibuat sendiri oleh `tools/build_city_map.py`).
+
+Batch 9B-27/9B-28 (warga Kota): `assets/world/mi_chars.png` + `mi_chars.json` (4 karakter x idle, idle_anim, run; frame 16x24) dipotong oleh `tools/build_mi_chars.py` dari folder `Characters_free/`
+paket "Modern Interiors - Free" oleh LimeZu (https://limezu.itch.io/moderninteriors): Adam, Alex, Amelia, Bob. LISENSI VERSI GRATIS (LICENSE.txt paket): hanya untuk proyek NON-KOMERSIAL;
+menyunting boleh hanya untuk proyek non-komersial; DILARANG proyek komersial dan menjual ulang sprite (juga yang sudah disunting). Pemilik menyatakan proyek ini pribadi dan non-komersial,
+jadi sprite aktif secara default untuk NPC kota (adam, alex, amelia); `?mi=0` mematikannya (sprite hero cadangan). Bila proyek kelak dipublikasikan atau dikomersialkan: hapus `mi_chars.*`
+atau beli lisensi penuh. Bob hanya ada di atlas. Paket ZIP mentah tidak dimasukkan ke repo.
+Batch 9B-29 (interior Kota): `assets/world/mi_interior.png` + `mi_interior.json` (44 sprite: perabot, dinding/lantai tiga tema, 4 karakter statis) dipotong oleh `tools/build_mi_interiors.py` dari
+`Interiors_free/16x16/Interiors_free_16x16.png`, `Room_Builder_free_16x16.png` dan `Characters_free/` paket "Modern Interiors - Free" oleh LimeZu (https://limezu.itch.io/moderninteriors). Dipakai tiga interior
+kota (kafe, toko, apartemen). LISENSI VERSI GRATIS: hanya proyek NON-KOMERSIAL; DILARANG menjual ulang/mendistribusikan ulang (juga yang disunting). Proyek ini pribadi dan non-komersial. Bila kelak dipublikasikan atau
+dikomersialkan: hapus `mi_interior.*` dan tiga templat interior kota, atau beli lisensi penuh. Paket ZIP mentah tidak dimasukkan ke repo.
+
+Step 11: assets/world/food_icons16.png, food_icons32.png dan food_icons.json dibuat tools/build_food_icons.py dari dua paket CC0 (hanya dipotong dan disusun ulang, piksel tidak diubah):
+"Free Pixel Food" oleh Henry Software (art: benmhenry; 64 ikon 16x16) dan "Free Pixel Foods" oleh ghostpixxells (53 dari 102 ikon 32x32; tanpa AI generatif).
+Paket mentah tidak disertakan di repositori.
+
+Step 13: assets/world/mart_icons.png, fruit_icons.png dan mart_icons.json dibuat tools/build_mart_icons.py (hanya dipotong dan disusun ulang, piksel tidak diubah):
+"Pixel Mart" oleh ghostpixxells (CC0; 150 ikon barang toko 32x32) dan "Fruit" oleh Ninjikin / SciGho (CC BY 4.0, WAJIB KREDIT: "Fruit by SciGho (Ninjikin) - https://ninjikin.itch.io/fruit",
+lisensi https://creativecommons.org/licenses/by/4.0/; 228 ikon buah 16x16). Paket mentah tidak disertakan di repositori.
