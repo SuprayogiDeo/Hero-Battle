@@ -1,0 +1,278 @@
+{
+ "v": 1,
+ "width": 256,
+ "height": 168,
+ "spr": {
+  "mi_table_wood": {
+   "x": 0,
+   "y": 0,
+   "w": 38,
+   "h": 37
+  },
+  "mi_table_light": {
+   "x": 39,
+   "y": 0,
+   "w": 37,
+   "h": 37
+  },
+  "mi_stool": {
+   "x": 77,
+   "y": 0,
+   "w": 14,
+   "h": 14
+  },
+  "mi_bench": {
+   "x": 92,
+   "y": 0,
+   "w": 38,
+   "h": 21
+  },
+  "mi_window": {
+   "x": 131,
+   "y": 0,
+   "w": 25,
+   "h": 15
+  },
+  "mi_bookcase_a": {
+   "x": 157,
+   "y": 0,
+   "w": 31,
+   "h": 31
+  },
+  "mi_bookcase_b": {
+   "x": 189,
+   "y": 0,
+   "w": 31,
+   "h": 31
+  },
+  "mi_fridges": {
+   "x": 0,
+   "y": 38,
+   "w": 64,
+   "h": 32
+  },
+  "mi_rack": {
+   "x": 65,
+   "y": 38,
+   "w": 21,
+   "h": 31
+  },
+  "mi_sofa": {
+   "x": 87,
+   "y": 38,
+   "w": 48,
+   "h": 26
+  },
+  "mi_rug_red": {
+   "x": 136,
+   "y": 38,
+   "w": 60,
+   "h": 39
+  },
+  "mi_rug_blue": {
+   "x": 197,
+   "y": 38,
+   "w": 24,
+   "h": 18
+  },
+  "mi_rug_green": {
+   "x": 222,
+   "y": 38,
+   "w": 24,
+   "h": 18
+  },
+  "mi_bed_cyan": {
+   "x": 0,
+   "y": 78,
+   "w": 40,
+   "h": 32
+  },
+  "mi_bed_cream": {
+   "x": 41,
+   "y": 78,
+   "w": 40,
+   "h": 32
+  },
+  "mi_plant_tree": {
+   "x": 82,
+   "y": 78,
+   "w": 18,
+   "h": 31
+  },
+  "mi_plant_small": {
+   "x": 101,
+   "y": 78,
+   "w": 14,
+   "h": 23
+  },
+  "mi_palm": {
+   "x": 116,
+   "y": 78,
+   "w": 23,
+   "h": 31
+  },
+  "mi_chairs": {
+   "x": 140,
+   "y": 78,
+   "w": 28,
+   "h": 25
+  },
+  "mi_picture_a": {
+   "x": 169,
+   "y": 78,
+   "w": 22,
+   "h": 7
+  },
+  "mi_picture_b": {
+   "x": 192,
+   "y": 78,
+   "w": 26,
+   "h": 18
+  },
+  "mi_food_a": {
+   "x": 219,
+   "y": 78,
+   "w": 9,
+   "h": 8
+  },
+  "mi_food_b": {
+   "x": 229,
+   "y": 78,
+   "w": 9,
+   "h": 9
+  },
+  "mi_food_c": {
+   "x": 239,
+   "y": 78,
+   "w": 9,
+   "h": 8
+  },
+  "mi_wall_mint": {
+   "x": 0,
+   "y": 111,
+   "w": 16,
+   "h": 32
+  },
+  "mi_side_mint": {
+   "x": 17,
+   "y": 111,
+   "w": 16,
+   "h": 16
+  },
+  "mi_bot_mint": {
+   "x": 34,
+   "y": 111,
+   "w": 16,
+   "h": 16
+  },
+  "mi_floor_mint_a": {
+   "x": 51,
+   "y": 111,
+   "w": 16,
+   "h": 16
+  },
+  "mi_floor_mint_b": {
+   "x": 68,
+   "y": 111,
+   "w": 16,
+   "h": 16
+  },
+  "mi_wall_cream": {
+   "x": 85,
+   "y": 111,
+   "w": 16,
+   "h": 32
+  },
+  "mi_side_cream": {
+   "x": 102,
+   "y": 111,
+   "w": 16,
+   "h": 16
+  },
+  "mi_bot_cream": {
+   "x": 119,
+   "y": 111,
+   "w": 16,
+   "h": 16
+  },
+  "mi_floor_cream_a": {
+   "x": 136,
+   "y": 111,
+   "w": 16,
+   "h": 16
+  },
+  "mi_floor_cream_b": {
+   "x": 153,
+   "y": 111,
+   "w": 16,
+   "h": 16
+  },
+  "mi_wall_wood": {
+   "x": 170,
+   "y": 111,
+   "w": 16,
+   "h": 32
+  },
+  "mi_side_wood": {
+   "x": 187,
+   "y": 111,
+   "w": 16,
+   "h": 16
+  },
+  "mi_bot_wood": {
+   "x": 204,
+   "y": 111,
+   "w": 16,
+   "h": 16
+  },
+  "mi_floor_wood_a": {
+   "x": 221,
+   "y": 111,
+   "w": 16,
+   "h": 16
+  },
+  "mi_floor_wood_b": {
+   "x": 238,
+   "y": 111,
+   "w": 16,
+   "h": 16
+  },
+  "mi_door_gap": {
+   "x": 0,
+   "y": 144,
+   "w": 16,
+   "h": 16
+  },
+  "mi_bob": {
+   "x": 17,
+   "y": 144,
+   "w": 16,
+   "h": 24
+  },
+  "mi_amelia": {
+   "x": 34,
+   "y": 144,
+   "w": 16,
+   "h": 24
+  },
+  "mi_adam": {
+   "x": 51,
+   "y": 144,
+   "w": 16,
+   "h": 24
+  },
+  "mi_alex": {
+   "x": 68,
+   "y": 144,
+   "w": 16,
+   "h": 24
+  }
+ },
+ "source": {
+  "pack": "Modern Interiors - Free v2.2",
+  "author": "LimeZu",
+  "license": "free version: non-commercial only; no resale/redistribution",
+  "commercial_use": false,
+  "url": "https://limezu.itch.io/moderninteriors"
+ }
+}

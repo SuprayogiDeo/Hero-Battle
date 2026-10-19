@@ -1,0 +1,316 @@
+{
+  "version": 1,
+  "width": 128,
+  "height": 60,
+  "tileSize": 16,
+  "source": {
+    "pack": "Modern City Top-Down Pack - Free Sampler",
+    "author": "The Venice Menace Baking Co.",
+    "license": "CC0",
+    "url": "https://venicemenacebakingco.itch.io/modern-city-topdown-pack",
+    "ai_disclosure": "art generated with AI assistance and curated by hand (disclosed by the author)"
+  },
+  "count": 20,
+  "entries": {
+    "grass_a": {
+      "x": 0,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "kind": "tile",
+      "source": "sampler_tileset_16.png",
+      "sourceBox": [
+        44,
+        18,
+        269,
+        253
+      ],
+      "opaque": 244
+    },
+    "grass_b": {
+      "x": 16,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "kind": "tile",
+      "source": "sampler_tileset_16.png",
+      "sourceBox": [
+        274,
+        15,
+        501,
+        253
+      ],
+      "opaque": 241
+    },
+    "sidewalk_a": {
+      "x": 32,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "kind": "tile",
+      "source": "sampler_tileset_16.png",
+      "sourceBox": [
+        514,
+        36,
+        723,
+        253
+      ],
+      "opaque": 256
+    },
+    "sidewalk_b": {
+      "x": 48,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "kind": "tile",
+      "source": "sampler_tileset_16.png",
+      "sourceBox": [
+        741,
+        36,
+        951,
+        253
+      ],
+      "opaque": 256
+    },
+    "sidewalk_c": {
+      "x": 64,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "kind": "tile",
+      "source": "sampler_tileset_16.png",
+      "sourceBox": [
+        969,
+        36,
+        1179,
+        253
+      ],
+      "opaque": 256
+    },
+    "cross_curb": {
+      "x": 80,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "kind": "tile",
+      "source": "sampler_tileset_16.png",
+      "sourceBox": [
+        1197,
+        36,
+        1409,
+        253
+      ],
+      "opaque": 256
+    },
+    "cross_h": {
+      "x": 96,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "kind": "tile",
+      "source": "sampler_tileset_16.png",
+      "sourceBox": [
+        1427,
+        36,
+        1640,
+        253
+      ],
+      "opaque": 256
+    },
+    "cross_v": {
+      "x": 112,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "kind": "tile",
+      "source": "sampler_tileset_16.png",
+      "sourceBox": [
+        1659,
+        36,
+        1869,
+        253
+      ],
+      "opaque": 256
+    },
+    "road_h_a": {
+      "x": 0,
+      "y": 16,
+      "w": 16,
+      "h": 16,
+      "kind": "tile",
+      "source": "sampler_tileset_16.png",
+      "sourceBox": [
+        52,
+        271,
+        263,
+        473
+      ],
+      "opaque": 256
+    },
+    "road_h_b": {
+      "x": 16,
+      "y": 16,
+      "w": 16,
+      "h": 16,
+      "kind": "tile",
+      "source": "sampler_tileset_16.png",
+      "sourceBox": [
+        281,
+        271,
+        496,
+        473
+      ],
+      "opaque": 256
+    },
+    "road_v": {
+      "x": 32,
+      "y": 16,
+      "w": 16,
+      "h": 16,
+      "kind": "tile",
+      "source": "sampler_tileset_16.png",
+      "sourceBox": [
+        514,
+        271,
+        723,
+        478
+      ],
+      "opaque": 256
+    },
+    "road_cross": {
+      "x": 48,
+      "y": 16,
+      "w": 16,
+      "h": 16,
+      "kind": "tile",
+      "source": "sampler_tileset_16.png",
+      "sourceBox": [
+        741,
+        272,
+        951,
+        478
+      ],
+      "opaque": 256
+    },
+    "road_lanes_h": {
+      "x": 64,
+      "y": 16,
+      "w": 16,
+      "h": 16,
+      "kind": "tile",
+      "source": "sampler_tileset_16.png",
+      "sourceBox": [
+        969,
+        272,
+        1179,
+        478
+      ],
+      "opaque": 256
+    },
+    "road_corner": {
+      "x": 80,
+      "y": 16,
+      "w": 16,
+      "h": 16,
+      "kind": "tile",
+      "source": "sampler_tileset_16.png",
+      "sourceBox": [
+        1197,
+        272,
+        1409,
+        478
+      ],
+      "opaque": 256
+    },
+    "road_t_a": {
+      "x": 96,
+      "y": 16,
+      "w": 16,
+      "h": 16,
+      "kind": "tile",
+      "source": "sampler_tileset_16.png",
+      "sourceBox": [
+        1427,
+        272,
+        1641,
+        478
+      ],
+      "opaque": 256
+    },
+    "road_t_b": {
+      "x": 112,
+      "y": 16,
+      "w": 16,
+      "h": 16,
+      "kind": "tile",
+      "source": "sampler_tileset_16.png",
+      "sourceBox": [
+        1659,
+        272,
+        1869,
+        478
+      ],
+      "opaque": 256
+    },
+    "prop_traffic_light": {
+      "x": 0,
+      "y": 33,
+      "w": 16,
+      "h": 27,
+      "kind": "prop",
+      "source": "sampler_props_3.png",
+      "sourceBox": [
+        227,
+        25,
+        463,
+        424
+      ],
+      "opaque": 392
+    },
+    "prop_street_lamp": {
+      "x": 17,
+      "y": 33,
+      "w": 25,
+      "h": 25,
+      "kind": "prop",
+      "source": "sampler_props_3.png",
+      "sourceBox": [
+        768,
+        42,
+        1146,
+        418
+      ],
+      "opaque": 353
+    },
+    "prop_bench": {
+      "x": 43,
+      "y": 33,
+      "w": 28,
+      "h": 14,
+      "kind": "prop",
+      "source": "sampler_props_3.png",
+      "sourceBox": [
+        1347,
+        136,
+        1768,
+        339
+      ],
+      "opaque": 388
+    },
+    "npc_fox_commuter": {
+      "x": 72,
+      "y": 33,
+      "w": 13,
+      "h": 16,
+      "kind": "sprite",
+      "source": "fox_commuter_npc.png",
+      "sourceBox": [
+        179,
+        36,
+        1429,
+        1561
+      ],
+      "opaque": 134
+    }
+  }
+}

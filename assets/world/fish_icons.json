@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "cell": 16,
+  "cols": 11,
+  "rows": 1,
+  "width": 176,
+  "height": 16,
+  "order": [
+    "bluegill",
+    "carp",
+    "river_trout",
+    "gold_koi",
+    "sardine",
+    "mackerel",
+    "moon_eel",
+    "snow_char",
+    "moss_fish",
+    "starlight_fish",
+    "unknown"
+  ],
+  "source": {
+    "pack": "Fishing Icon Pack by Hollow Dolphin",
+    "file": "fishing_icons_sheet_16x16.png",
+    "grid": {
+      "cols": 12,
+      "rows": 9,
+      "cell": 16
+    }
+  },
+  "icons": {
+    "bluegill": {
+      "x": 0,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "sheetIndex": 12,
+      "sheetRow": 1,
+      "sheetCol": 0,
+      "why": "ikan bulat biru = sirip biru"
+    },
+    "carp": {
+      "x": 16,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "sheetIndex": 3,
+      "sheetRow": 0,
+      "sheetCol": 3,
+      "why": "ikan kuning keemasan = Ikan Mas"
+    },
+    "river_trout": {
+      "x": 32,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "sheetIndex": 36,
+      "sheetRow": 3,
+      "sheetCol": 0,
+      "why": "ikan merah muda berbintik = trout pelangi"
+    },
+    "gold_koi": {
+      "x": 48,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "sheetIndex": 2,
+      "sheetRow": 0,
+      "sheetCol": 2,
+      "why": "ikan oranye berpita putih = koi"
+    },
+    "sardine": {
+      "x": 64,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "sheetIndex": 24,
+      "sheetRow": 2,
+      "sheetCol": 0,
+      "why": "ikan ramping sian = sarden"
+    },
+    "mackerel": {
+      "x": 80,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "sheetIndex": 25,
+      "sheetRow": 2,
+      "sheetCol": 1,
+      "why": "ikan hijau-biru gelap berekor tegas = makarel"
+    },
+    "moon_eel": {
+      "x": 96,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "sheetIndex": 58,
+      "sheetRow": 4,
+      "sheetCol": 10,
+      "why": "tubuh panjang ungu bergelombang = belut bulan"
+    },
+    "snow_char": {
+      "x": 112,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "sheetIndex": 39,
+      "sheetRow": 3,
+      "sheetCol": 3,
+      "why": "ikan krem pucat = arang salju"
+    },
+    "moss_fish": {
+      "x": 128,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "sheetIndex": 27,
+      "sheetRow": 2,
+      "sheetCol": 3,
+      "why": "ikan hijau lumut = ikan lumut"
+    },
+    "starlight_fish": {
+      "x": 144,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "sheetIndex": 14,
+      "sheetRow": 1,
+      "sheetCol": 2,
+      "why": "ikan ungu berbentuk bulan sabit = cahaya bintang"
+    },
+    "unknown": {
+      "x": 160,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "sheetIndex": 12,
+      "sheetRow": 1,
+      "sheetCol": 0,
+      "why": "siluet gelap dari bentuk ikon 12 (ikan belum ditemukan)",
+      "derived": true
+    }
+  }
+}

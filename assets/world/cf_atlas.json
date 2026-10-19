@@ -1,0 +1,280 @@
+{
+  "version": 1,
+  "width": 256,
+  "height": 533,
+  "padding": 1,
+  "source": {
+    "pack": "Cute Fantasy (Free)",
+    "author": "Kenmi",
+    "license": "non-commercial only; modification allowed; no redistribution or resale, even if modified"
+  },
+  "count": 19,
+  "entries": {
+    "animals/Chicken": {
+      "x": 0,
+      "y": 290,
+      "w": 64,
+      "h": 64,
+      "category": "animals",
+      "source": "Animals/Chicken/Chicken.png",
+      "opaque": 530,
+      "grid": {
+        "cell": 32,
+        "cols": 2,
+        "rows": 2
+      }
+    },
+    "animals/Cow": {
+      "x": 65,
+      "y": 290,
+      "w": 64,
+      "h": 64,
+      "category": "animals",
+      "source": "Animals/Cow/Cow.png",
+      "opaque": 1408,
+      "grid": {
+        "cell": 32,
+        "cols": 2,
+        "rows": 2
+      }
+    },
+    "animals/Pig": {
+      "x": 130,
+      "y": 290,
+      "w": 64,
+      "h": 64,
+      "category": "animals",
+      "source": "Animals/Pig/Pig.png",
+      "opaque": 978,
+      "grid": {
+        "cell": 32,
+        "cols": 2,
+        "rows": 2
+      }
+    },
+    "animals/Sheep": {
+      "x": 0,
+      "y": 355,
+      "w": 64,
+      "h": 64,
+      "category": "animals",
+      "source": "Animals/Sheep/Sheep.png",
+      "opaque": 972,
+      "grid": {
+        "cell": 32,
+        "cols": 2,
+        "rows": 2
+      }
+    },
+    "decor/Bridge_Wood": {
+      "x": 65,
+      "y": 355,
+      "w": 144,
+      "h": 64,
+      "category": "decor",
+      "source": "Outdoor decoration/Bridge_Wood.png",
+      "opaque": 2953,
+      "grid": {
+        "cell": 16,
+        "cols": 9,
+        "rows": 4
+      }
+    },
+    "decor/Chest": {
+      "x": 49,
+      "y": 485,
+      "w": 16,
+      "h": 16,
+      "category": "decor",
+      "source": "Outdoor decoration/Chest.png",
+      "opaque": 245,
+      "grid": {
+        "cell": 16,
+        "cols": 1,
+        "rows": 1
+      }
+    },
+    "decor/Fences": {
+      "x": 0,
+      "y": 420,
+      "w": 64,
+      "h": 64,
+      "category": "decor",
+      "source": "Outdoor decoration/Fences.png",
+      "opaque": 1516,
+      "grid": {
+        "cell": 16,
+        "cols": 4,
+        "rows": 4
+      }
+    },
+    "decor/House_1_Wood_Base_Blue": {
+      "x": 113,
+      "y": 0,
+      "w": 96,
+      "h": 128,
+      "category": "decor",
+      "source": "Outdoor decoration/House_1_Wood_Base_Blue.png",
+      "opaque": 6633,
+      "grid": {
+        "cell": 16,
+        "cols": 6,
+        "rows": 8
+      }
+    },
+    "decor/Oak_Tree": {
+      "x": 147,
+      "y": 193,
+      "w": 64,
+      "h": 80,
+      "category": "decor",
+      "source": "Outdoor decoration/Oak_Tree.png",
+      "opaque": 1956,
+      "grid": {
+        "cell": 16,
+        "cols": 4,
+        "rows": 5
+      }
+    },
+    "decor/Oak_Tree_Small": {
+      "x": 65,
+      "y": 420,
+      "w": 96,
+      "h": 48,
+      "category": "decor",
+      "source": "Outdoor decoration/Oak_Tree_Small.png",
+      "opaque": 939,
+      "grid": {
+        "cell": 16,
+        "cols": 6,
+        "rows": 3
+      }
+    },
+    "decor/Outdoor_Decor_Free": {
+      "x": 0,
+      "y": 0,
+      "w": 112,
+      "h": 192,
+      "category": "decor",
+      "source": "Outdoor decoration/Outdoor_Decor_Free.png",
+      "opaque": 5956,
+      "grid": {
+        "cell": 16,
+        "cols": 7,
+        "rows": 12
+      }
+    },
+    "tiles/Beach_Tile": {
+      "x": 162,
+      "y": 420,
+      "w": 80,
+      "h": 48,
+      "category": "tiles",
+      "source": "Tiles/Beach_Tile.png",
+      "opaque": 3328,
+      "grid": {
+        "cell": 16,
+        "cols": 5,
+        "rows": 3
+      }
+    },
+    "tiles/Cliff_Tile": {
+      "x": 0,
+      "y": 193,
+      "w": 48,
+      "h": 96,
+      "category": "tiles",
+      "source": "Tiles/Cliff_Tile.png",
+      "opaque": 4096,
+      "grid": {
+        "cell": 16,
+        "cols": 3,
+        "rows": 6
+      }
+    },
+    "tiles/FarmLand_Tile": {
+      "x": 0,
+      "y": 485,
+      "w": 48,
+      "h": 48,
+      "category": "tiles",
+      "source": "Tiles/FarmLand_Tile.png",
+      "opaque": 2304,
+      "grid": {
+        "cell": 16,
+        "cols": 3,
+        "rows": 3
+      }
+    },
+    "tiles/Grass_Middle": {
+      "x": 66,
+      "y": 485,
+      "w": 16,
+      "h": 16,
+      "category": "tiles",
+      "source": "Tiles/Grass_Middle.png",
+      "opaque": 256,
+      "grid": {
+        "cell": 16,
+        "cols": 1,
+        "rows": 1
+      }
+    },
+    "tiles/Path_Middle": {
+      "x": 83,
+      "y": 485,
+      "w": 16,
+      "h": 16,
+      "category": "tiles",
+      "source": "Tiles/Path_Middle.png",
+      "opaque": 256,
+      "grid": {
+        "cell": 16,
+        "cols": 1,
+        "rows": 1
+      }
+    },
+    "tiles/Path_Tile": {
+      "x": 49,
+      "y": 193,
+      "w": 48,
+      "h": 96,
+      "category": "tiles",
+      "source": "Tiles/Path_Tile.png",
+      "opaque": 4096,
+      "grid": {
+        "cell": 16,
+        "cols": 3,
+        "rows": 6
+      }
+    },
+    "tiles/Water_Middle": {
+      "x": 100,
+      "y": 485,
+      "w": 16,
+      "h": 16,
+      "category": "tiles",
+      "source": "Tiles/Water_Middle.png",
+      "opaque": 256,
+      "grid": {
+        "cell": 16,
+        "cols": 1,
+        "rows": 1
+      }
+    },
+    "tiles/Water_Tile": {
+      "x": 98,
+      "y": 193,
+      "w": 48,
+      "h": 96,
+      "category": "tiles",
+      "source": "Tiles/Water_Tile.png",
+      "opaque": 4096,
+      "grid": {
+        "cell": 16,
+        "cols": 3,
+        "rows": 6
+      }
+    }
+  }
+}

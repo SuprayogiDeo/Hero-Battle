@@ -1,0 +1,101 @@
+{
+ "version": 1,
+ "width": 384,
+ "height": 216,
+ "frameW": 16,
+ "frameH": 24,
+ "cropTop": 8,
+ "dirs": [
+  "right",
+  "up",
+  "left",
+  "down"
+ ],
+ "perDir": 6,
+ "fps": {
+  "idle_anim": 6,
+  "run": 10
+ },
+ "anchor": "bottom-center",
+ "source": {
+  "pack": "Modern Interiors - Free (Characters_free)",
+  "author": "LimeZu",
+  "url": "https://limezu.itch.io/moderninteriors",
+  "license": "FREE VERSION: non-commercial projects only; edits allowed for non-commercial use; no resale; repo must stay private",
+  "commercial_use": false
+ },
+ "chars": {
+  "adam": {
+   "name": "Adam",
+   "idle": {
+    "x": 0,
+    "y": 0,
+    "frames": 4
+   },
+   "idle_anim": {
+    "x": 0,
+    "y": 24,
+    "frames": 24
+   },
+   "run": {
+    "x": 0,
+    "y": 120,
+    "frames": 24
+   }
+  },
+  "alex": {
+   "name": "Alex",
+   "idle": {
+    "x": 64,
+    "y": 0,
+    "frames": 4
+   },
+   "idle_anim": {
+    "x": 0,
+    "y": 48,
+    "frames": 24
+   },
+   "run": {
+    "x": 0,
+    "y": 144,
+    "frames": 24
+   }
+  },
+  "amelia": {
+   "name": "Amelia",
+   "idle": {
+    "x": 128,
+    "y": 0,
+    "frames": 4
+   },
+   "idle_anim": {
+    "x": 0,
+    "y": 72,
+    "frames": 24
+   },
+   "run": {
+    "x": 0,
+    "y": 168,
+    "frames": 24
+   }
+  },
+  "bob": {
+   "name": "Bob",
+   "idle": {
+    "x": 192,
+    "y": 0,
+    "frames": 4
+   },
+   "idle_anim": {
+    "x": 0,
+    "y": 96,
+    "frames": 24
+   },
+   "run": {
+    "x": 0,
+    "y": 192,
+    "frames": 24
+   }
+  }
+ }
+}

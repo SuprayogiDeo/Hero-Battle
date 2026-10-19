@@ -1,0 +1,143 @@
+{
+ "v": 1,
+ "w": 40,
+ "h": 30,
+ "tile": 16,
+ "chunkSize": 20,
+ "atlas": "city_tiles.png",
+ "atlasMeta": "city_tiles.json",
+ "tiles": [
+  "grass_a",
+  "grass_b",
+  "sidewalk_a",
+  "sidewalk_b",
+  "sidewalk_c",
+  "cross_curb",
+  "cross_h",
+  "cross_v",
+  "road_h_a",
+  "road_h_b",
+  "road_v",
+  "road_cross",
+  "road_lanes_h",
+  "road_corner",
+  "road_t_a",
+  "road_t_b"
+ ],
+ "props": {
+  "prop_street_lamp": {
+   "fw": 1,
+   "fh": 1,
+   "anchor": "center"
+  },
+  "prop_bench": {
+   "fw": 2,
+   "fh": 1,
+   "anchor": "center"
+  },
+  "prop_traffic_light": {
+   "fw": 1,
+   "fh": 1,
+   "anchor": "bottom"
+  }
+ },
+ "chunks": [
+  {
+   "x": 0,
+   "y": 0,
+   "file": "chunks/c0_0.json"
+  },
+  {
+   "x": 1,
+   "y": 0,
+   "file": "chunks/c1_0.json"
+  },
+  {
+   "x": 0,
+   "y": 1,
+   "file": "chunks/c0_1.json"
+  },
+  {
+   "x": 1,
+   "y": 1,
+   "file": "chunks/c1_1.json"
+  }
+ ],
+ "spawn": [
+  4,
+  14
+ ],
+ "gates": {
+  "village": {
+   "tile": [
+    126,
+    23
+   ],
+   "landing": [
+    124,
+    23
+   ],
+   "note": "gerbang di tepi timur desa (kode city.js); peta desa tidak diubah"
+  },
+  "return": {
+   "tile": [
+    1,
+    14
+   ],
+   "zone": 1.5,
+   "posts": [
+    [
+     1,
+     13
+    ],
+    [
+     1,
+     15
+    ]
+   ]
+  }
+ },
+ "npcs": {
+  "fox": [
+   25,
+   13
+  ]
+ },
+ "roads": {
+  "horizontalY": 14,
+  "verticalX": 20
+ },
+ "source": "tools/build_city_map.py",
+ "design": [
+  "gggggggggggggggggggggggggggggggggggggggg",
+  "ggggggggggggggggggssvssggggggggggggggggg",
+  "ggggggggggggggggggssvssggggggggggggggggg",
+  "ggggggggggggggggggssvssggggggggggggggggg",
+  "ggggggggggggggggggssvssggggggggggggggggg",
+  "ggggggggggggggggggssvssggggggggggggggggg",
+  "ggggggggggggggggggssvssggggggggggggggggg",
+  "ggggggggggggggggggssvssggggggggggggggggg",
+  "ggggggggggggggggggssvssggggggggggggggggg",
+  "ggggggggggggggggggssvssggggggggggggggggg",
+  "ggggggggggggggggggssVssggggggggggggggggg",
+  "ggggggggggggggggggssvssggggggggggggggggg",
+  "gsssssssssssssssssssvssssssssssssssssssg",
+  "gsssssssssssssssssssvssssssssssssssssssg",
+  "hhhhhhhhhhhhHhhhhhhh+hhhhhhhHhhhhhhhhhhh",
+  "gsssssssssssssssssssvssssssssssssssssssg",
+  "gsssssssssssssssssssvssssssssssssssssssg",
+  "ggggggggggggggggggssvssggggggggggggggggg",
+  "ggggggggggggggggggssVssggggggggggggggggg",
+  "ggggggggggggggggggssvssggggggggggggggggg",
+  "ggggggggggggggggggssvssggggggggggggggggg",
+  "ggggggggggggggggggssvssggggggggggggggggg",
+  "ggggggggggggggggggssvssggggggggggggggggg",
+  "ggggggggggggggggggssvssggggggggggggggggg",
+  "ggggggggggggggggggssvssggggggggggggggggg",
+  "ggggggggggggggggggssvssggggggggggggggggg",
+  "ggggggggggggggggggssvssggggggggggggggggg",
+  "ggggggggggggggggggssvssggggggggggggggggg",
+  "ggggggggggggggggggssvssggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggg"
+ ]
+}
