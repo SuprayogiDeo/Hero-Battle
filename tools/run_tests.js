@@ -1,0 +1,53 @@
+#!/usr/bin/env node
+'use strict';
+const { spawnSync } = require('node:child_process');
+const path = require('node:path');
+const root = path.resolve(__dirname, '..');
+function run(label, command, args) {
+  console.log(`\n== ${label} ==`);
+  const result = spawnSync(command, args, { cwd: root, stdio: 'inherit' });
+  if (result.error) {
+    console.error(`${label} could not run: ${result.error.message}`);
+    process.exit(1);
+  }
+  if (result.status !== 0) process.exit(result.status || 1);
+}
+run('JavaScript syntax', process.execPath, ['tools/check_syntax.js']);
+run('Static asset paths', process.execPath, ['tools/check_static_paths.js']);
+run('Browser/script smoke tests', process.execPath, ['tools/test_browser_smoke.js']);
+run('Stage 2 regression tests', process.execPath, ['tools/test_stage2_batch.js']);
+run('Save recovery tests', process.execPath, ['tools/test_save_recovery.js']);
+run('Life-system tests', process.execPath, ['tools/test_life_logic.js']);
+run('Interior + HUD tests', process.execPath, ['tools/test_interior_hud.js']);
+run('Interior room-name box (Batch 9B-15)', process.execPath, ['tools/test_interior_name_box.js']);
+run('Inventory + storage tests (Stage 8C)', process.execPath, ['tools/test_inventory_storage.js']);
+run('World farming + fishing + gathering tests (Stages 8D–8E)', process.execPath, ['tools/test_stage_8de.js']);
+run('Interiors, physical services, signage and safe waypoint routes (Stages 8F–8G)', process.execPath, ['tools/test_stage_8fg.js']);
+run('Persistent milestone tutorials and opt-in performance monitor (Stages 8H–8I)', process.execPath, ['tools/test_tutorial_progress.js']);
+run('Stage 9A: bridge, overlaps, focus panel, minimap', process.execPath, ['tools/test_stage_9a.js']);
+run('Stage 10A: polish (bridge, footprints, pens, mushrooms, resource respawn, fishing)', process.execPath, ['tools/test_polish_10a.js']);
+run('Fixes 9A-9D: park, farm gate, symmetric gate, door paths, bridge deck, mushrooms, building spacing, grove sign', process.execPath, ['tools/test_stage_9c.js']);
+run('Smith gear upgrade', process.execPath, ['tools/test_smith_upgrade.js']);
+run('Healer services', process.execPath, ['tools/test_healer_services.js']);
+run('Player house', process.execPath, ['tools/test_player_house.js']);
+run('Penginapan desa (menu, stok, buff)', process.execPath, ['tools/test_inn.js']);
+run('Blok desa K3 (kafe, toko, apartemen di Hutan Rimbun)', process.execPath, ['tools/test_village_town.js']);
+run('Kafe Kota + Toko Kota (venue kedai, Umpan Langka)', process.execPath, ['tools/test_city_shops.js']);
+run('Ikon masakan + umpan (atlas asli, dishIcon, menu)', process.execPath, ['tools/test_dish_icons.js']);
+run('Atlas ikon makanan (Henry 16px + ghostpixxells 32px, CC0)', process.execPath, ['tools/test_food_icons.js']);
+run('Atlas barang toko + buah (Pixel Mart CC0 + Fruit CC BY 4.0)', process.execPath, ['tools/test_mart_icons.js']);
+run('Map data 10A: Village Hall path, east bridge road, b_res5 bush', process.execPath, ['tools/test_map_10a.js']);
+run('HUD regression (landscape): no visual overlaps, tap targets >= 44 px, text fits', process.execPath, ['tools/test_hud_regression.js']);
+run('World zoom (opt-in ?zoom=): camera, culling, restore-on-error, screen<->world conversion', process.execPath, ['tools/test_world_zoom.js']);
+run('NPC baru: posisi tidak solid', process.execPath, ['tools/test_npc_new.js']);
+run('Ikon ikan (atlas Hollow Dolphin, helper fishIcon, fallback teks)', process.execPath, ['tools/test_fish_icons.js']);
+run('Atlas Cute Fantasy (Kenmi, non-komersial): semua entri json ada di atlas', process.execPath, ['tools/test_cf_atlas.js']);
+run('Atlas kota CC0 (Venice Menace sampler): 16 tile 16x16, 3 prop, rubah, pratinjau 4x, lisensi + bantuan AI', process.execPath, ['tools/test_city_tiles.js']);
+run('Kota Kecil: data/chunk, tabrakan prop, gerbang masuk/keluar, rubah, peta desa tidak berubah', process.execPath, ['tools/test_city.js']);
+run('NPC Kota: atlas LimeZu, jadwal, jalan antar blok, dialog, sakelar ?mi=0, lisensi', process.execPath, ['tools/test_city_npcs.js']);
+run('Interior Kota: atlas LimeZu, templat kafe/toko/apartemen, pintu gedung, masuk/keluar, interior desa tidak berubah', process.execPath, ['tools/test_city_interiors.js']);
+run('Sakelar ?cf=1: tanpa flag tidak berubah; hewan Kandang, jembatan, pagar dari atlas; peta/tabrakan/chunk identik', process.execPath, ['tools/test_cf_flag.js']);
+run('Release integrity checks', process.execPath, ['tools/test_release_integrity.js']);
+const isWin = process.platform === 'win32';
+run('World/data regression tests', isWin ? 'py' : 'python3', isWin ? ['-3', 'tools/test_7defg.py'] : ['tools/test_7defg.py']);
+console.log('\nPASS: all Hero Battle automated test suites completed.');

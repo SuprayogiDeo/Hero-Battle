@@ -1,0 +1,23 @@
+{
+ "note": "SHA-256 berkas peta desa 128x96 (diperbarui sengaja di Batch 9B-30: blok desa K3 = kafe, toko, apartemen di Hutan Rimbun via tools/build_town_k3.py). Perbarui hanya bila peta desa sengaja diubah.",
+ "w": 128,
+ "h": 96,
+ "files": {
+  "assets/world/index.json": "606f4e501b5f7ec5fd4635e2b9c4544bda6b0f0404817375f387a22e3305fe87",
+  "assets/world/village.json": "4e62248b4354a24ce38d129ed6d09ecfc46383d4821f268588dd616e8ec76e06",
+  "assets/world/tiles.png": "c33f79bcddf8947c46534921930a42ca840b49e3310e95d3ba5b66e4214b41e1",
+  "assets/world/sprites.png": "5c93c4a0799ca6e228a3cba5fffc5b1e28c59098f406a1d0b05d7604074f3500",
+  "assets/world/chunks/c0_0.json": "fd635d5bb16a3c9c9f420349f566811bbbb0b8ca894d4d94fb2142d7bdb23f4d",
+  "assets/world/chunks/c0_1.json": "8d99b88d9aaafb935852e07cd5906f989245946948e1a95ac7ba101689883c21",
+  "assets/world/chunks/c0_2.json": "957be58a150962ef82140c2883d304cade97199702900971347df6b384e93858",
+  "assets/world/chunks/c1_0.json": "913d32a229c41afcf7651077d405b8a75b4e456d9c3523f5f5140152d140d1d2",
+  "assets/world/chunks/c1_1.json": "3ece1057d46ec13a771410ea454d560de729dd0381a62a422b373a3193bbab9a",
+  "assets/world/chunks/c1_2.json": "9afd70575763b8437a832808466848f4bfcb272be938468c7c43b937159f5208",
+  "assets/world/chunks/c2_0.json": "c7c6c5e63dfbeaf00cec681d6a5152ce197095a911dab112ce22209339b1541d",
+  "assets/world/chunks/c2_1.json": "3c17be8334dd650f0690dd25ae30f4a4fcbf43b621592b58259b86d77fd75126",
+  "assets/world/chunks/c2_2.json": "e00d3ebad7d759fd5a1e314e8911a19527eb273e8e7acf50d2cd63800c6b84c2",
+  "assets/world/chunks/c3_0.json": "73402a56744ea66f2c69404a9cb0e6a55dc524e2113b53ba25cd1a63891ede45",
+  "assets/world/chunks/c3_1.json": "30ef659ef68c86ebe467a7ead6bd4c4471d4eca616a4e51953f54c743503e4c8",
+  "assets/world/chunks/c3_2.json": "0443e93f9c16c4fad4b5c4271b9706374ffc16641131726cfc99aeb597dfc861"
+ }
+}
